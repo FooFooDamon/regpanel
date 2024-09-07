@@ -60,8 +60,6 @@ cscope.in.out
 cscope.out
 cscope.po.out
 gccdump.s
-lazy_coding
-lazy_coding_skills
 log/
 logs/
 moc_*.h
@@ -71,6 +69,13 @@ obj/
 QtMakefile
 tags
 ui_*.h
+
+
+lazy_coding
+lazy_coding_skills
+checkout.*.mk
+__ver__.mk
+c_and_cpp.mk
 
 
 <stdin>.s
