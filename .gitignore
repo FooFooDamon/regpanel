@@ -20,6 +20,7 @@
 !init.d
 !profile.d
 *.dat
+*.debug.pri
 *.dtb
 *.dtbo
 *.elf
@@ -83,4 +84,7 @@ c_and_cpp.mk
 
 _tmp_
 __pycache__
+
+
+regpanel
 
