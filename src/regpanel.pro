@@ -1,14 +1,14 @@
 MAKEFILE = QtMakefile
 
-CONFIG += c++11 qt warn_on release
-exists(regpanel.debug.pri) {
-    include(regpanel.debug.pri) # Should contain: CONFIG += debug
-}
 TEMPLATE = app
 TARGET = regpanel
+CONFIG += c++11 qt warn_on release
+exists($${TARGET}.debug.pri) {
+    include($${TARGET}.debug.pri) # Should contain: CONFIG += debug
+}
 
 FORMS += *.ui
-HEADERS += regpanel.hpp
+HEADERS += $${TARGET}.hpp
 SOURCES += *.cpp
 QT += widgets
 
