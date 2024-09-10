@@ -48,6 +48,10 @@
 #define BIZ_TYPE_CANDIDATES             "normal,test"
 #define BIZ_TYPE_DEFAULT                "normal"
 
+#ifndef DEFAULT_CONF_DIR
+#define DEFAULT_CONF_DIR                "/usr/local/etc/regpanel"
+#endif
+
 #ifdef HAS_CONFIG_FILE
 #ifndef DEFAULT_CONF_FILE
 #define DEFAULT_CONF_FILE               "config.ini"
@@ -74,6 +78,7 @@ typedef struct cmd_args
 {
     std::vector<std::string> orphan_args;
     std::string biz;
+    std::string config_dir;
     std::string config_file;
 #ifdef HAS_LOGGER
     std::string log_file;
@@ -128,6 +133,10 @@ cmd_args_t parse_cmdline(int argc, char **argv)
             "\t\tProduce all messages of verbose mode, plus debug ones."
         },
 #endif
+        {
+            { "config-dir", required_argument, nullptr, 'C' },
+            " /PATH/TO/CONFIG/DIR\n\t\t\tSpecify configuration directory. Default to " DEFAULT_CONF_DIR "."
+        },
 #ifdef HAS_CONFIG_FILE
         {
             { "config", required_argument, nullptr, 'c' },
@@ -172,6 +181,7 @@ cmd_args_t parse_cmdline(int argc, char **argv)
      * Set some default option values here.
      */
     result.biz = BIZ_TYPE_DEFAULT;
+    result.config_dir = DEFAULT_CONF_DIR;
 #ifdef HAS_CONFIG_FILE
     result.config_file = DEFAULT_CONF_FILE;
 #endif
@@ -225,6 +235,8 @@ cmd_args_t parse_cmdline(int argc, char **argv)
         } // c == 0: for long-only options
         else if (abbr_map["biz"] == c)
             result.biz = optarg;
+        else if (abbr_map["config-dir"] == c)
+            result.config_dir = optarg;
 #ifdef HAS_CONFIG_FILE
         else if (abbr_map["config"] == c)
             result.config_file = optarg;
@@ -390,7 +402,7 @@ typedef int (*biz_func_t)(BIZ_FUN_ARG_LIST);
 static DECLARE_BIZ_FUN(normal_biz)
 {
     QApplication app(argc, argv);
-    RegPanel panel;
+    RegPanel panel(parsed_args.config_dir.c_str());
 
     panel.show();
 
@@ -450,5 +462,8 @@ lbl_unload_conf:
  *
  * >>> 2024-09-09, Man Hung-Coeng <udc577@126.com>:
  *  01. Initial commit.
+ *
+ * >>> 2024-09-10, Man Hung-Coeng <udc577@126.com>:
+ *  01. Add --config-dir command line option.
  */
 

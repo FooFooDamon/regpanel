@@ -26,7 +26,8 @@ class RegPanel : public QDialog, public Ui_Dialog
     Q_OBJECT
 
 public:
-    RegPanel(QWidget *parent = 0);
+    RegPanel() = delete;
+    RegPanel(const char *config_dir, QWidget *parent = nullptr);
 
 private slots:
     void on_btnConvert_clicked(void);
@@ -41,5 +42,8 @@ private slots:
  *
  * >>> 2024-09-09, Man Hung-Coeng <udc577@126.com>:
  *  01. Initial commit.
+ *
+ * >>> 2024-09-10, Man Hung-Coeng <udc577@126.com>:
+ *  01. Add config_dir to the parameter list of constructor.
  */
 
