@@ -44,6 +44,7 @@ RegPanel::RegPanel(const char *config_dir, QWidget *parent)
     this->setFixedSize(this->geometry().size());
     this->setWindowFlags(Qt::Window | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
     this->setWindowTitle(QString::asprintf("%s [%s]", this->windowTitle().toStdString().c_str(), FULL_VERSION()));
+    this->lblPoweredBy->setText(this->lblPoweredBy->text() + " " + QT_VERSION_STR);
 
     scan_config_directory(config_dir);
 
@@ -418,5 +419,6 @@ bool RegPanel::refresh_register_tables(const QJsonDocument &json, const char *mo
  * >>> 2024-09-13, Man Hung-Coeng <udc577@126.com>:
  *  01. Implement most widget dynamic update logics
  *      except for those of register tables.
+ *  02. Append Qt version to the powered-by info at the bottom.
  */
 
