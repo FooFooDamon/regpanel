@@ -19,6 +19,8 @@
 #ifndef __REGPANEL_HPP__
 #define __REGPANEL_HPP__
 
+#include <QJsonDocument>
+
 #include "ui_regpanel.h"
 
 class RegPanel : public QDialog, public Ui_Dialog
@@ -29,8 +31,50 @@ public:
     RegPanel() = delete;
     RegPanel(const char *config_dir, QWidget *parent = nullptr);
 
+public:
+    void info_box(const QString &title, const QString &text);
+    void warning_box(const QString &title, const QString &text);
+    void error_box(const QString &title, const QString &text);
+
+public:
+    inline const std::string& config_dir(void) const
+    {
+        return m_config_dir;
+    }
+
+    typedef std::pair<std::string, std::vector<std::string>> ChipItem;
+
+    typedef std::pair<std::string, std::vector<ChipItem>> VendorItem;
+
+    inline const std::vector<VendorItem>& vendors(void) const
+    {
+        return m_vendors;
+    }
+
+    inline QJsonDocument& json(void)
+    {
+        return m_json;
+    }
+
 private slots:
+    void on_lstVendor_currentIndexChanged(int index);
+    void on_lstChip_currentIndexChanged(int index);
+    void on_lstFile_currentIndexChanged(int index);
+    void on_lstModule_currentIndexChanged(int index);
+    void on_lstDelimeter_currentIndexChanged(int index);
+    void on_lstAddrBaseMethod_currentIndexChanged(int index);
+    void on_chkboxAsInput_stateChanged(int checked);
     void on_btnConvert_clicked(void);
+
+private:
+    void scan_config_directory(const char *config_dir);
+    bool load_config_file(const char *path);
+    bool refresh_register_tables(const QJsonDocument &json, const char *module_name);
+
+private:
+    std::string m_config_dir;
+    std::vector<VendorItem> m_vendors;
+    QJsonDocument m_json;
 };
 
 #endif /* #ifndef __REGPANEL_HPP__ */
@@ -45,5 +89,9 @@ private slots:
  *
  * >>> 2024-09-10, Man Hung-Coeng <udc577@126.com>:
  *  01. Add config_dir to the parameter list of constructor.
+ *
+ * >>> 2024-09-13, Man Hung-Coeng <udc577@126.com>:
+ *  01. Add necessary widget slots (aka: callback functions for state change)
+ *      and some auxiliary variables/functions.
  */
 
