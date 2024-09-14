@@ -4081,7 +4081,7 @@ Or (when using Square Brackets):
        <bool>true</bool>
       </property>
       <property name="minimum">
-       <number>-999999999</number>
+       <number>0</number>
       </property>
       <property name="maximum">
        <number>999999999</number>
@@ -4323,6 +4323,17 @@ Or (when using Square Brackets):
          <height>649</height>
         </rect>
        </property>
+       <widget class="QWidget" name="verticalLayoutWidget">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>761</width>
+          <height>651</height>
+         </rect>
+        </property>
+        <layout class="QVBoxLayout" name="vlayoutRegTables"/>
+       </widget>
       </widget>
      </widget>
     </widget>
