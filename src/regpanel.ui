@@ -4084,7 +4084,7 @@ Or (when using Square Brackets):
        <number>0</number>
       </property>
       <property name="maximum">
-       <number>999999999</number>
+       <number>2147483647</number>
       </property>
       <property name="displayIntegerBase">
        <number>16</number>
