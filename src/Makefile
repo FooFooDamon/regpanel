@@ -16,11 +16,12 @@
 
 .PHONY: all prepare dependencies
 
-ifeq ($(shell [ -s __ver__.mk -a -s QtMakefile ] && echo 1 || echo 0),0)
+ifeq ($(shell [ -s qt_print.hpp -a -s __ver__.mk -a -s QtMakefile ] && echo 1 || echo 0),0)
 
 LAZY_CODING_URL ?= https://github.com/FooFooDamon/lazy_coding_skills
 
 all prepare: dependencies
+	@[ -s qt_print.hpp ] || wget -c "${LAZY_CODING_URL}/raw/main/c_and_cpp/native/qt_print.hpp"
 	@[ -s __ver__.mk ] || wget -c "${LAZY_CODING_URL}/raw/main/makefile/__ver__.mk"
 	@[ -s QtMakefile ] || qmake -o QtMakefile
 	@echo "~ ~ ~ Minimum preparation finished successfully ~ ~ ~"
@@ -33,7 +34,7 @@ all: dependencies
 include __ver__.mk
 include QtMakefile
 
-DEFINES += -D__VER__=\"${__VER__}\"
+DEFINES += -D__VER__=\"${__VER__}\" -DHAS_LOGGER
 CFLAGS += -Wno-unused-parameter
 CXXFLAGS += -Wno-unused-parameter
 INCPATH +=
