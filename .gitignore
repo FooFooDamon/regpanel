@@ -87,5 +87,6 @@ __pycache__
 
 
 custom_*.json
+qt_print.hpp
 regpanel
 
