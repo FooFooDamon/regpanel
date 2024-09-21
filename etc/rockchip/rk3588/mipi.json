@@ -17,7 +17,7 @@
 
         "0x0000 | VERSION": [
             { "attr": [ "31:1", "RO", "reserved" ] },
-            { "attr": [ "0", "RO", "literal", "version", "FIXME: Version of the csi2host with a single bit??" ] }
+            { "attr": [ "0", "RO", "decimal", "version", "FIXME: Version of the csi2host with a single bit??" ] }
         ],
 
         "0x0004 | N_LANES": [
@@ -165,10 +165,10 @@
         ],
 
         "0x0040 | CONTROL": [
-            { "attr": [ "31:26", "RW", "literal", "sw_datatype_le", "The datatype of line end" ] },
-            { "attr": [ "25:20", "RW", "literal", "sw_datatype_ls", "The datatype of line start" ] },
-            { "attr": [ "19:14", "RW", "literal", "sw_datatype_fe", "The datatype of frame end" ] },
-            { "attr": [ "13:8", "RW", "literal", "sw_datatype_fs", "The datatype of frame start" ] },
+            { "attr": [ "31:26", "RW", "hex", "sw_datatype_le", "The datatype of line end" ] },
+            { "attr": [ "25:20", "RW", "hex", "sw_datatype_ls", "The datatype of line start" ] },
+            { "attr": [ "19:14", "RW", "hex", "sw_datatype_fe", "The datatype of frame end" ] },
+            { "attr": [ "13:8", "RW", "hex", "sw_datatype_fs", "The datatype of frame start" ] },
             { "attr": [ "7:5", "RO", "reserved" ] },
             {
                 "attr": [ "4", "RW", "enum", "sw_dsi_en:" ],
@@ -264,13 +264,13 @@
         "0x0034 | DIGITAL_CLK_PHASE": [
             { "attr": [ "31:8", "RO", "reserved" ] },
             { "attr": [ "7:3", "RW", "reserved" ] },
-            { "attr": [ "2:0", "RW", "literal", "digital_clk_phase:", "Phase 0 is earliest and phase 7 is latest. Each step between the adjacent phase is about 40ps." ] }
+            { "attr": [ "2:0", "RW", "decimal", "digital_clk_phase:", "Phase 0 is earliest and phase 7 is latest. Each step between the adjacent phase is about 40ps." ] }
         ],
 
         "0x0038 | LANE_CLK_3_PHASE": [
             { "attr": [ "31:7", "RO", "reserved" ] },
-            { "attr": [ "6:4", "RW", "literal", "lane_clk_phase:", "Phase 0 is earliest and phase 7 is latest. Each step between the adjacent phase is about 40ps." ] },
-            { "attr": [ "3:1", "RW", "literal", "lane_3_phase:", "Phase 0 is earliest and phase 7 is latest. Each step between the adjacent phase is about 40ps." ] },
+            { "attr": [ "6:4", "RW", "decimal", "lane_clk_phase:", "Phase 0 is earliest and phase 7 is latest. Each step between the adjacent phase is about 40ps." ] },
+            { "attr": [ "3:1", "RW", "decimal", "lane_3_phase:", "Phase 0 is earliest and phase 7 is latest. Each step between the adjacent phase is about 40ps." ] },
             {
                 "attr": [ "0", "RW", "enum", "lane_2_phase_msb", "MSB of lane_2_phase in next register LANE_2_1_0_PHASE." ],
                 "desc": {
@@ -291,8 +291,8 @@
                     "3": "Phase 3 or 7"
                 }
             },
-            { "attr": [ "5:3", "RW", "literal", "lane_1_phase:", "Phase 0 is earliest and phase 7 is latest. Each step between the adjacent phase is about 40ps." ] },
-            { "attr": [ "2:0", "RW", "literal", "lane_0_phase:", "Phase 0 is earliest and phase 7 is latest. Each step between the adjacent phase is about 40ps." ] }
+            { "attr": [ "5:3", "RW", "decimal", "lane_1_phase:", "Phase 0 is earliest and phase 7 is latest. Each step between the adjacent phase is about 40ps." ] },
+            { "attr": [ "2:0", "RW", "decimal", "lane_0_phase:", "Phase 0 is earliest and phase 7 is latest. Each step between the adjacent phase is about 40ps." ] }
         ],
 
         "0x0048 | DIGITAL_CLK_REVERSE": [
@@ -316,9 +316,9 @@
 
         "0x00CC | LANE_CLK1_PHASE": [
             { "attr": [ "31:7", "RO", "reserved" ] },
-            { "attr": [ "6:4", "RW", "literal", "lane_clk1_phase:", "Phase 0 is earliest and phase 7 is latest. Each step between the adjacent phase is about 40ps." ] },
+            { "attr": [ "6:4", "RW", "decimal", "lane_clk1_phase:", "Phase 0 is earliest and phase 7 is latest. Each step between the adjacent phase is about 40ps." ] },
             { "attr": [ "3", "RO", "reserved" ] },
-            { "attr": [ "2:0", "RW", "literal", "digital_clk1_phase:", "Phase 0 is earliest and phase 7 is latest. Each step between the adjacent phase is about 40ps." ] }
+            { "attr": [ "2:0", "RW", "decimal", "digital_clk1_phase:", "Phase 0 is earliest and phase 7 is latest. Each step between the adjacent phase is about 40ps." ] }
         ],
 
         "0x0128 | LANE_CK_MODE": [
@@ -348,17 +348,17 @@
 
         "0x0140 | LANE_CK_TTAGO": [
             { "attr": [ "31:6", "RO", "reserved" ] },
-            { "attr": [ "5:0", "RW", "literal", "ttago:", "The value of counter for Tta-go of turnaround. Tta-go = Ttxclkesc * value" ] }
+            { "attr": [ "5:0", "RW", "decimal", "ttago:", "The value of counter for Tta-go of turnaround. Tta-go = Ttxclkesc * value" ] }
         ],
 
         "0x0144 | LANE_CK_TTASURE": [
             { "attr": [ "31:6", "RO", "reserved" ] },
-            { "attr": [ "5:0", "RW", "literal", "ttasure:", "The value of counter for Tta-sure of turnaround. Tta-sure = Ttxclkesc * value" ] }
+            { "attr": [ "5:0", "RW", "decimal", "ttasure:", "The value of counter for Tta-sure of turnaround. Tta-sure = Ttxclkesc * value" ] }
         ],
 
         "0x0148 | LANE_CK_TTAWAIT": [
             { "attr": [ "31:6", "RO", "reserved" ] },
-            { "attr": [ "5:0", "RW", "literal", "ttawait:", "The value of counter for Tta-wait of turnaround. Tta-wait = Ttxclkesc * value" ] }
+            { "attr": [ "5:0", "RW", "decimal", "ttawait:", "The value of counter for Tta-wait of turnaround. Tta-wait = Ttxclkesc * value" ] }
         ],
 
         "0x0160 | LANE_CK_THSSETTLE": [
@@ -695,14 +695,14 @@
             { "attr": [ "31:13", "RO", "reserved" ] },
             { "attr": [ "12", "RW", "bool", "PLL_EN:", "PLL Control Logic Block Enable Register. For using PLL in PHY module, user can set this register after setting registers." ] },
             { "attr": [ "11", "RO", "reserved" ] },
-            { "attr": [ "10:8", "RW", "literal", "S:", "Register for Division Value of the 3-bit Programmable Scaler." ] },
+            { "attr": [ "10:8", "RW", "decimal", "S:", "Register for Division Value of the 3-bit Programmable Scaler." ] },
             { "attr": [ "7:6", "RO", "reserved" ] },
-            { "attr": [ "5:0", "RW", "literal", "P:", "Register for Division Value of the 6-bit Programmable Pre-Divider. PLL has to be reset if P value is changed." ] }
+            { "attr": [ "5:0", "RW", "decimal", "P:", "Register for Division Value of the 6-bit Programmable Pre-Divider. PLL has to be reset if P value is changed." ] }
         ],
 
         "0x0104 | PLL_CON1": [
             { "attr": [ "31:16", "RO", "reserved" ] },
-            { "attr": [ "15:0", "RW", "literal", "K:", "Value of 16-bit DSM." ] }
+            { "attr": [ "15:0", "RW", "decimal", "K:", "Value of 16-bit DSM." ] }
         ],
 
         "0x0108 | PLL_CON2": [
@@ -710,15 +710,15 @@
             { "attr": [ "15", "RW", "bool", "USE_SDW_REG:", "Shadow Register Enable Register. For using frequency hopping function in PHY, user can set this register before controlling the interface signal PLL_CFG_UPDT." ] },
             { "attr": [ "14", "RW", "bool", "M_ESCREF_EN:", "M_ESCREF Output Enable Register. When user wants to measure the Escape Clock of Master Lanes, set this register." ] },
             { "attr": [ "13", "RW", "bool", "FOUT_MASK:", "Register for Scaler's Re-initialization Time Control Pin." ] },
-            { "attr": [ "12", "RW", "literal", "FEED_EN:", "Register for Monitoring Pin. If FEED_EN is 1, FEED_OUT is enabled." ] },
+            { "attr": [ "12", "RW", "decimal", "FEED_EN:", "Register for Monitoring Pin. If FEED_EN is 1, FEED_OUT is enabled." ] },
             { "attr": [ "11:10", "RO", "reserved" ] },
-            { "attr": [ "9:0", "RW", "literal", "M:", "Register for Division Value of the 10-bit Programmable Main-Divider. PLL has to be reset if M value is changed." ] }
+            { "attr": [ "9:0", "RW", "decimal", "M:", "Register for Division Value of the 10-bit Programmable Main-Divider. PLL has to be reset if M value is changed." ] }
         ],
 
         "0x010C | PLL_CON3": [
             { "attr": [ "31:14", "RO", "reserved" ] },
-            { "attr": [ "13:8", "RW", "literal", "MRR:", "Register for Value of 6-bit Modulation Rate Control. PLL has to be reset if MRR is changed." ] },
-            { "attr": [ "7:0", "RW", "literal", "MFR:", "Register for Value of 8-bit Modulation Frequency Control. PLL has to be reset if MFR is changed." ] }
+            { "attr": [ "13:8", "RW", "decimal", "MRR:", "Register for Value of 6-bit Modulation Rate Control. PLL has to be reset if MRR is changed." ] },
+            { "attr": [ "7:0", "RW", "decimal", "MFR:", "Register for Value of 8-bit Modulation Frequency Control. PLL has to be reset if MFR is changed." ] }
         ],
 
         "0x0110 | PLL_CON4": [
@@ -740,7 +740,7 @@
             },
             { "attr": [ "8", "RW", "invbool", "AFC_ENB:", "Whether to enable AFC and auto-calibration for VCO." ] },
             { "attr": [ "7:5", "RO", "reserved" ] },
-            { "attr": [ "4:0", "RW", "literal", "EXTAFC:", "If AFC_ENB is 1, AFC is disabled and VCO is calibrated manually by this value for the test of VCO range." ] }
+            { "attr": [ "4:0", "RW", "decimal", "EXTAFC:", "If AFC_ENB is 1, AFC is disabled and VCO is calibrated manually by this value for the test of VCO range." ] }
         ],
 
         "0x0114 | PLL_CON5": [
@@ -796,7 +796,7 @@
                 }
             },
             { "attr": [ "7:6", "RO", "reserved" ] },
-            { "attr": [ "5:4", "RW", "literal", "ICP:", "Register for Controlling the Charge-Pump Current." ] },
+            { "attr": [ "5:4", "RW", "decimal", "ICP:", "Register for Controlling the Charge-Pump Current." ] },
             { "attr": [ "3:2", "RO", "reserved" ] },
             {
                 "attr": [ "1:0", "RW", "enum", "SEL_PF:", "Register for Value of 2-bit Modulation Method Control. PLL has to be reset if SEL_PF is changed." ],
@@ -817,7 +817,7 @@
                     "1": "Disable"
                 }
             },
-            { "attr": [ "11:8", "RW", "literal", "WCLK_BUF_SFT_CNT:", "Word Clock Buffer Shift Count Control Register. Value = Roundup((Word Clock Period) / 38.46 + 2)" ] },
+            { "attr": [ "11:8", "RW", "decimal", "WCLK_BUF_SFT_CNT:", "Word Clock Buffer Shift Count Control Register. Value = Roundup((Word Clock Period) / 38.46 + 2)" ] },
             { "attr": [ "7", "RW", "bool", "PLL_TEST_DIV_EN:", "For measuring frequency in ATE test environment, user can set this register and measure the divided clock frequency at the port PLL_TEST_DIV_TM." ] },
             {
                 "attr": [ "6", "RW", "enum", "D2A_CLK_BUF_EN_SEL:", "Source for enabling D2A_CLK_BUF_EN." ],
@@ -860,12 +860,12 @@
 
         "0x011C | PLL_CON7": [
             { "attr": [ "31:16", "RO", "reserved" ] },
-            { "attr": [ "15:0", "RW", "literal", "PLL_LOCK_CNT:", "Count value of PLL lock indication. After setting PLL_EN register, PHY lock counter starts to count. When count value reaches to the value of this register, PLL_LOCK(M%_PLL_STAT0[0]) is set to HIGH. Generally, 200us is needed for locking the PLL." ] }
+            { "attr": [ "15:0", "RW", "decimal", "PLL_LOCK_CNT:", "Count value of PLL lock indication. After setting PLL_EN register, PHY lock counter starts to count. When count value reaches to the value of this register, PLL_LOCK(M%_PLL_STAT0[0]) is set to HIGH. Generally, 200us is needed for locking the PLL." ] }
         ],
 
         "0x0120 | PLL_CON8": [
             { "attr": [ "31:16", "RO", "reserved" ] },
-            { "attr": [ "15:0", "RW", "literal", "PLL_STB_CNT:", "Count value of PLL stablization. After signal PLL_CFG_UPDT is asserted for frequency hopping function, PHY stabilizing counter starts to count. When count value reaches to the value of this register, signal PLL_CFG_READY is set to HIGH. Generally, 100us is needed for stablizing PLL in frequency hopping." ] }
+            { "attr": [ "15:0", "RW", "decimal", "PLL_STB_CNT:", "Count value of PLL stablization. After signal PLL_CFG_UPDT is asserted for frequency hopping function, PHY stabilizing counter starts to count. When count value reaches to the value of this register, signal PLL_CFG_READY is set to HIGH. Generally, 100us is needed for stablizing PLL in frequency hopping." ] }
         ],
 
         "0x0140 | PLL_STAT0": [
@@ -1157,7 +1157,7 @@
 
         "0x0B04 | DPHY_SC_GNR_CON1": [
             { "attr": [ "31:16", "RO", "reserved" ] },
-            { "attr": [ "15:0", "RW", "literal", "T_PHY_READY:", "Count value of PHY ready indication. When setting ENABLE register, PHY ready counter starts to count. And when count value reaches to the value of this register, DPHY_SC_GNR_CON0[PHY_READY] is set to HIGH. Generally, 200us is needed for stablizing the bias and the ready counter operates with Reference Clocks." ] }
+            { "attr": [ "15:0", "RW", "decimal", "T_PHY_READY:", "Count value of PHY ready indication. When setting ENABLE register, PHY ready counter starts to count. And when count value reaches to the value of this register, DPHY_SC_GNR_CON0[PHY_READY] is set to HIGH. Generally, 200us is needed for stablizing the bias and the ready counter operates with Reference Clocks." ] }
         ],
 
         "0x0B08 | DPHY_SC_ANA_CON0": [
@@ -1418,7 +1418,7 @@
                     "1": "R-ladder"
                 }
             },
-            { "attr": [ "5:4", "RW", "literal", "LP_VREF520_SW:", "ULPS reference voltage option selection" ] },
+            { "attr": [ "5:4", "RW", "decimal", "LP_VREF520_SW:", "ULPS reference voltage option selection" ] },
             {
                 "attr": [ "3:0", "RW", "enum", "ATB_SEL_DMY:", "FIXME: ATB Enable??" ],
                 "desc": {
@@ -1490,8 +1490,8 @@
 
         "0x0B30 | DPHY_SC_TIME_CON0": [
             { "attr": [ "31:12", "RO", "reserved" ] },
-            { "attr": [ "11:8", "RW", "literal", "T_CLK_MISS:", "This count value is used in High-Speed Transmit operation. There is a watchdog timer in Receive logic for detecting Clock Miss. If the clock is not detected in Slave Clock Lane until the watchdog timer is expired, then internal flag is set." ] },
-            { "attr": [ "7:0", "RW", "literal", "T_CLK_SETTLE:", "This count value is used in High-Speed Transmit operation. For getting detailed information of this timing specification, please refer to \"Specification for D-PHYSM\" of mipi alliance." ] }
+            { "attr": [ "11:8", "RW", "decimal", "T_CLK_MISS:", "This count value is used in High-Speed Transmit operation. There is a watchdog timer in Receive logic for detecting Clock Miss. If the clock is not detected in Slave Clock Lane until the watchdog timer is expired, then internal flag is set." ] },
+            { "attr": [ "7:0", "RW", "decimal", "T_CLK_SETTLE:", "This count value is used in High-Speed Transmit operation. For getting detailed information of this timing specification, please refer to \"Specification for D-PHYSM\" of mipi alliance." ] }
         ],
 
         "0x0C00 | COMBO_SD0_GNR_CON0": [
@@ -1502,7 +1502,7 @@
 
         "0x0C04 | COMBO_SD0_GNR_CON1": [
             { "attr": [ "31:16", "RO", "reserved" ] },
-            { "attr": [ "15:0", "RW", "literal", "T_PHY_READY:", "Count value of PHY ready indication. When setting ENABLE register, PHY ready counter starts to count. And when count value reaches to the value of this register, COMBO_SDx_GNR_CON0[PHY_READY] is set to HIGH. Generally, 200us is needed for stablizing the bias and the ready counter operates with Reference Clocks." ] }
+            { "attr": [ "15:0", "RW", "decimal", "T_PHY_READY:", "Count value of PHY ready indication. When setting ENABLE register, PHY ready counter starts to count. And when count value reaches to the value of this register, COMBO_SDx_GNR_CON0[PHY_READY] is set to HIGH. Generally, 200us is needed for stablizing the bias and the ready counter operates with Reference Clocks." ] }
         ],
 
         "0x0C08 | COMBO_SD0_ANA_CON0": [
@@ -1662,16 +1662,16 @@
 
         "0x0C20 | COMBO_SD0_ANA_CON6": [
             { "attr": [ "31:10", "RO", "reserved" ] },
-            { "attr": [ "9:8", "RW", "literal", "DL_COMP_CTRL:", "UI mask code output control - sec control" ] },
+            { "attr": [ "9:8", "RW", "decimal", "DL_COMP_CTRL:", "UI mask code output control - sec control" ] },
             { "attr": [ "7:6", "RO", "reserved" ] },
-            { "attr": [ "5:4", "RW", "literal", "UI_MASK_CTRL:", "UI Mask control - sec control" ] },
-            { "attr": [ "3", "RW", "literal", "EXT_DL_MUX_EN:", "UI data sampling type - sec control" ] },
+            { "attr": [ "5:4", "RW", "decimal", "UI_MASK_CTRL:", "UI Mask control - sec control" ] },
+            { "attr": [ "3", "RW", "decimal", "EXT_DL_MUX_EN:", "UI data sampling type - sec control" ] },
             { "attr": [ "2:0", "RO", "reserved" ] }
         ],
 
         "0x0C24 | COMBO_SD0_ANA_CON7": [
             { "attr": [ "31:8", "RO", "reserved" ] },
-            { "attr": [ "7:6", "RW", "literal", "CLK_DBL_CTRL:", "XI to doubler clock delay cotrol - sec control" ] },
+            { "attr": [ "7:6", "RW", "decimal", "CLK_DBL_CTRL:", "XI to doubler clock delay cotrol - sec control" ] },
             { "attr": [ "5:0", "RO", "reserved" ] }
         ],
 
@@ -1684,12 +1684,12 @@
                     "1": "Div2 Clock (< 1500Mbps)"
                 }
             },
-            { "attr": [ "7:0", "RW", "literal", "T_HS_SETTLE:", "TSETTLE Timing Counter Register. This count value is used in High-Speed Transmit operation. For getting detailed information of this timing specification, please refer to \"Specification for D-PHYSM\" of mipi alliance." ] }
+            { "attr": [ "7:0", "RW", "decimal", "T_HS_SETTLE:", "TSETTLE Timing Counter Register. This count value is used in High-Speed Transmit operation. For getting detailed information of this timing specification, please refer to \"Specification for D-PHYSM\" of mipi alliance." ] }
         ],
 
         "0x0C34 | COMBO_SD0_TIME_CON1": [
             { "attr": [ "31:8", "RO", "reserved" ] },
-            { "attr": [ "7:0", "RW", "literal", "T_ERR_SOT_SYNC:", "SoT Sync Error Detect Timing Control Register. This count value is used in High-Speed Transmit operation. There is a watchdog timer in Receive logic for detecting SoT Sync Error. If the Sync Pattern is not detected until the watchdog timer is expired, then the PPI signal \"ERRSOTSYNC\" goes to HIGH." ] }
+            { "attr": [ "7:0", "RW", "decimal", "T_ERR_SOT_SYNC:", "SoT Sync Error Detect Timing Control Register. This count value is used in High-Speed Transmit operation. There is a watchdog timer in Receive logic for detecting SoT Sync Error. If the Sync Pattern is not detected until the watchdog timer is expired, then the PPI signal \"ERRSOTSYNC\" goes to HIGH." ] }
         ],
 
         "0x0C38 | COMBO_SD0_DATA_CON0": [
@@ -1702,53 +1702,53 @@
 
         "0x0C40 | COMBO_SD0_DESKEW_CON0": [
             { "attr": [ "31:5", "RO", "reserved" ] },
-            { "attr": [ "4", "RW", "literal", "SKEW_CAL_DES_SEL:", "Skew Calibration Clock Division Ratio Control Register." ] },
+            { "attr": [ "4", "RW", "decimal", "SKEW_CAL_DES_SEL:", "Skew Calibration Clock Division Ratio Control Register." ] },
             { "attr": [ "3:1", "RO", "reserved" ] },
             { "attr": [ "0", "RW", "bool", "SKEW_CAL_EN:", "Skew Calibration Enable Register." ] }
         ],
 
         "0x0C44 | COMBO_SD0_DESKEW_CON1": [
             { "attr": [ "31:16", "RO", "reserved" ] },
-            { "attr": [ "15:8", "RW", "literal", "SKEW_CAL_FINAL_COMP_TIME:", "Skew Calibration Final Compare Time Control Register." ] },
-            { "attr": [ "7:6", "RW", "literal", "SKEW_CAL_COMP_TOL:", "Skew Calibration Compare Tolerance Control Register." ] },
-            { "attr": [ "5:4", "RW", "literal", "SKEW_CAL_COMP_WAIT_TIME:", "Skew Calibration Compare Wait Time Control Register." ] },
-            { "attr": [ "3:0", "RW", "literal", "SKEW_CAL_COMP_RUN_TIME:", "Skew Calibration Compare Run Time Control Register." ] }
+            { "attr": [ "15:8", "RW", "decimal", "SKEW_CAL_FINAL_COMP_TIME:", "Skew Calibration Final Compare Time Control Register." ] },
+            { "attr": [ "7:6", "RW", "decimal", "SKEW_CAL_COMP_TOL:", "Skew Calibration Compare Tolerance Control Register." ] },
+            { "attr": [ "5:4", "RW", "decimal", "SKEW_CAL_COMP_WAIT_TIME:", "Skew Calibration Compare Wait Time Control Register." ] },
+            { "attr": [ "3:0", "RW", "decimal", "SKEW_CAL_COMP_RUN_TIME:", "Skew Calibration Compare Run Time Control Register." ] }
         ],
 
         "0x0C48 | COMBO_SD0_DESKEW_CON2": [
             { "attr": [ "31:13", "RO", "reserved" ] },
-            { "attr": [ "12:8", "RW", "literal", "SKEW_CAL_DATA_COARSE_SET:", "Skew Calibration Manual Data Coarse Delay Control Register." ] },
+            { "attr": [ "12:8", "RW", "decimal", "SKEW_CAL_DATA_COARSE_SET:", "Skew Calibration Manual Data Coarse Delay Control Register." ] },
             { "attr": [ "7:5", "RO", "reserved" ] },
-            { "attr": [ "4:0", "RW", "literal", "SKEW_CAL_DATA_FINE_SET:", "Skew Calibration Manual Data Fine Delay Control Register." ] }
+            { "attr": [ "4:0", "RW", "decimal", "SKEW_CAL_DATA_FINE_SET:", "Skew Calibration Manual Data Fine Delay Control Register." ] }
         ],
 
         "0x0C4C | COMBO_SD0_DESKEW_CON3": [
             { "attr": [ "31:16", "RO", "reserved" ] },
-            { "attr": [ "15:12", "RW", "literal", "SKEW_CAL_DATA_FINE_FALL_SET:", "Skew Calibration Manual Data Fine Falling Delay Control Register." ] },
-            { "attr": [ "11:8", "RW", "literal", "SKEW_CAL_DATA_FINE_RISE_SET:", "Skew Calibration Manual Data Fine Rising Delay Control Register." ] },
-            { "attr": [ "7:4", "RW", "literal", "SKEW_CAL_CLK_FINE_FALL_SET:", "Skew Calibration Manual Clock Fine Falling Delay Control Register." ] },
-            { "attr": [ "3:0", "RW", "literal", "SKEW_CAL_CLK_FINE_RISE_SET:", "Skew Calibration Manual Clock Fine Rising Delay Control Register." ] }
+            { "attr": [ "15:12", "RW", "decimal", "SKEW_CAL_DATA_FINE_FALL_SET:", "Skew Calibration Manual Data Fine Falling Delay Control Register." ] },
+            { "attr": [ "11:8", "RW", "decimal", "SKEW_CAL_DATA_FINE_RISE_SET:", "Skew Calibration Manual Data Fine Rising Delay Control Register." ] },
+            { "attr": [ "7:4", "RW", "decimal", "SKEW_CAL_CLK_FINE_FALL_SET:", "Skew Calibration Manual Clock Fine Falling Delay Control Register." ] },
+            { "attr": [ "3:0", "RW", "decimal", "SKEW_CAL_CLK_FINE_RISE_SET:", "Skew Calibration Manual Clock Fine Rising Delay Control Register." ] }
         ],
 
         "0x0C50 | COMBO_SD0_DESKEW_CON4": [
             { "attr": [ "31:12", "RO", "reserved" ] },
-            { "attr": [ "11:8", "RW", "literal", "SKEW_CAL_FINE_MAX_SET:", "Skew Calibration Maximum Fine Delay Step Control Register." ] },
+            { "attr": [ "11:8", "RW", "decimal", "SKEW_CAL_FINE_MAX_SET:", "Skew Calibration Maximum Fine Delay Step Control Register." ] },
             { "attr": [ "7:5", "RO", "reserved" ] },
-            { "attr": [ "4:0", "RW", "literal", "SKEW_CAL_COARSE_MAX_SET:", "Skew Calibration Maximum Coarse Delay Step Control Register." ] }
+            { "attr": [ "4:0", "RW", "decimal", "SKEW_CAL_COARSE_MAX_SET:", "Skew Calibration Maximum Coarse Delay Step Control Register." ] }
         ],
 
         "0x0C60 | COMBO_SD0_CRC_CON0": [
             { "attr": [ "31:9", "RO", "reserved" ] },
-            { "attr": [ "8:4", "RW", "literal", "CRC_FORCE_CODE:", "CRC Forcing Mode Code Control Register." ] },
+            { "attr": [ "8:4", "RW", "decimal", "CRC_FORCE_CODE:", "CRC Forcing Mode Code Control Register." ] },
             { "attr": [ "3:1", "RO", "reserved" ] },
             { "attr": [ "0", "RW", "bool", "CRC_FORCE_CODE_EN:", "CRC Forcing Mode Enable Register." ] }
         ],
 
         "0x0C64 | COMBO_SD0_CRC_CON1": [
             { "attr": [ "31:16", "RO", "reserved" ] },
-            { "attr": [ "15:8", "RW", "literal", "CRC_POST_GATING_CNT:", "CRC Post Gating Count Register." ] },
+            { "attr": [ "15:8", "RW", "decimal", "CRC_POST_GATING_CNT:", "CRC Post Gating Count Register." ] },
             { "attr": [ "7", "RW", "bool", "CRC_POST_GATING_EN:", "CRC Post Gating Enable Register." ] },
-            { "attr": [ "6:4", "RW", "literal", "CRC_SETTLE_MASK_SEL:", "CRC Clock Polarity Control Register." ] },
+            { "attr": [ "6:4", "RW", "decimal", "CRC_SETTLE_MASK_SEL:", "CRC Clock Polarity Control Register." ] },
             {
                 "attr": [ "3", "RW", "enum", "CRC_POL_SEL:", "CRC Clock Polarity Control Register." ],
                 "desc": {
@@ -1757,16 +1757,16 @@
                 }
             },
             { "attr": [ "2", "RW", "bool", "CRC_SOT_SYNC_ERR_CHK:", "CRC SoT Sync Error Check Enable Register." ] },
-            { "attr": [ "1:0", "RW", "literal", "CRC_AVG_SEL:", "CRC Code Average Select Register." ] }
+            { "attr": [ "1:0", "RW", "decimal", "CRC_AVG_SEL:", "CRC Code Average Select Register." ] }
         ],
 
         "0x0C68 | COMBO_SD0_CRC_CON2": [
             { "attr": [ "31:14", "RO", "reserved" ] },
-            { "attr": [ "13:12", "RW", "literal", "CRC_BURST_CNT:", "CRC Multiple Burst Count for Average Code Register." ] },
+            { "attr": [ "13:12", "RW", "decimal", "CRC_BURST_CNT:", "CRC Multiple Burst Count for Average Code Register." ] },
             { "attr": [ "11:9", "RO", "reserved" ] },
             { "attr": [ "8", "RW", "bool", "CRC_CODE_FIX:", "CRC Code Fix Control Register." ] },
-            { "attr": [ "7:4", "RW", "literal", "CRC_CODE_TOL:", "CRC Code Tolerance Control Register." ] },
-            { "attr": [ "3:0", "RW", "literal", "CRC_CODE_TUNE:", "CRC Code Tuning Register." ] }
+            { "attr": [ "7:4", "RW", "decimal", "CRC_CODE_TOL:", "CRC Code Tolerance Control Register." ] },
+            { "attr": [ "3:0", "RW", "decimal", "CRC_CODE_TUNE:", "CRC Code Tuning Register." ] }
         ],
 
         "0x0D00 | COMBO_SD1_GNR_CON0": [
@@ -2037,7 +2037,7 @@
                 }
             },
             { "attr": [ "10:6", "RO", "reserved" ] },
-            { "attr": [ "5:4", "RW", "literal", "ATB_SEL_POWER_IR:", "ULPS reference voltage option selection" ] },
+            { "attr": [ "5:4", "RW", "decimal", "ATB_SEL_POWER_IR:", "ULPS reference voltage option selection" ] },
             {
                 "attr": [ "3:0", "RW", "enum", "ATB_SEL_DMY:", "FIXME: ATB Enable??" ],
                 "desc": {
