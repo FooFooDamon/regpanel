@@ -23,6 +23,8 @@
 
 #include "ui_regpanel.h"
 
+class QTableWidget;
+
 class RegPanel : public QDialog, public Ui_Dialog
 {
     Q_OBJECT
@@ -30,6 +32,7 @@ class RegPanel : public QDialog, public Ui_Dialog
 public:
     RegPanel() = delete;
     RegPanel(const char *config_dir, QWidget *parent = nullptr);
+    ~RegPanel();
 
 public:
     void info_box(const QString &title, const QString &text);
@@ -69,12 +72,19 @@ private slots:
 private:
     void scan_config_directory(const char *config_dir);
     bool load_config_file(const char *path);
-    bool refresh_register_tables(const QJsonDocument &json, const char *module_name);
+    QTableWidget* make_register_table(QWidget *parent, const QString &name_prefix,
+        const QString &dict_key, const QJsonArray &dict_value,
+        uint64_t default_value, uint64_t current_value);
+    int make_register_tables(const QJsonDocument &json, const QString &module_name);
+    int make_register_tables(const QTextEdit &textbox, const QString &module_name);
+    void clear_register_tables(void);
+    int generate_register_array_items(const QString &module_name, const QTextEdit &textbox);
 
 private:
     std::string m_config_dir;
     std::vector<VendorItem> m_vendors;
     QJsonDocument m_json;
+    std::map<uint64_t, std::string> m_reg_addr_map;
 };
 
 #endif /* #ifndef __REGPANEL_HPP__ */
@@ -93,5 +103,9 @@ private:
  * >>> 2024-09-13, Man Hung-Coeng <udc577@126.com>:
  *  01. Add necessary widget slots (aka: callback functions for state change)
  *      and some auxiliary variables/functions.
+ *
+ * >>> 2024-09-25, Man Hung-Coeng <udc577@126.com>:
+ *  01. Add functions of generating register graphical tables
+ *      and array item texts.
  */
 
