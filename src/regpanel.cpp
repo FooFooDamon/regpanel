@@ -248,7 +248,7 @@ void RegPanel::on_lstAddrBaseMethod_currentIndexChanged(int index)
 
     this->spnboxAddrBase->setDisabled(ignored);
     this->spnboxAddrBase->setReadOnly(ignored);
-    this->spnboxAddrBase->setStyleSheet(ignored ? "background-color: darkgray; color: black;"
+    this->spnboxAddrBase->setStyleSheet(ignored ? "background-color: darkgray; color: white;"
         : "background-color: " SOFT_GREEN_COLOR "; color: black;");
 }
 
@@ -313,13 +313,6 @@ void RegPanel::on_btnConvert_clicked(void)
     if (this->lstModule->currentIndex() < 0)
     {
         this->error_box("No Target", QString::asprintf("No available module, please check your configuration again."));
-
-        return;
-    }
-
-    if (0 == qEnvironmentVariable("REGPANEL_TEST", "0").toInt())
-    {
-        this->warning_box("Unimplemented", __PRETTY_FUNCTION__);
 
         return;
     }
@@ -532,6 +525,11 @@ public:
         // FIXME: disconnect slot
         m_curr_value.setValue(current_value);
         // FIXME: connect slot again
+    }
+
+    inline uint64_t current_value(void)
+    {
+        return m_curr_value.value();
     }
 
 // TODO: m_curr_value slot
@@ -1091,7 +1089,7 @@ int RegPanel::make_register_tables(const QJsonDocument &json, const QString &mod
     QVBoxLayout *vlayout = this->vlayoutRegTables;
     QWidget *scroll_widget = vlayout->parentWidget();
     int table_count = 0;
-    int i = -1;
+    int i = 0;
 
     for (QJsonObject::const_iterator iter = modules_dict.begin(); modules_dict.end() != iter; ++iter)
     {
@@ -1161,30 +1159,118 @@ int RegPanel::make_register_tables(const QJsonDocument &json, const QString &mod
     return table_count;
 }
 
+#define IS_HEX_CHAR(c)          (((c) >= '0' && (c) <= '9') || ((c) >= 'A' && (c) <= 'F') || ((c) >= 'a' && (c) <= 'f'))
+
 int RegPanel::make_register_tables(const QTextEdit &textbox, const QString &module_name)
 {
-    static int test_count = 0;
-    int table_count = 0;
-
-    if (0 == ((++test_count) % 2))
-    {
-        this->info_box("Test", "All register tables cleared");
-
-        return table_count;
-    }
-
-    const QJsonObject &modules_dict = this->json().object().value(module_name).toObject();
     QVBoxLayout *vlayout = this->vlayoutRegTables;
     QWidget *scroll_widget = vlayout->parentWidget();
+    int delim_index = this->lstDelimeter->currentIndex();
+    const char left_delim = (CURLY_BRACES == delim_index) ? '{' : '[';
+    const char right_delim = (CURLY_BRACES == delim_index) ? '}' : ']';
+    const QJsonObject &doc_dict = this->json().object();
+    const QJsonObject &modules_dict = doc_dict.value(module_name).toObject();
+    const QString &offset_method = this->lstAddrBaseMethod->currentText();
+    char offset_op = (0 == offset_method.compare("Ignore", Qt::CaseInsensitive)) ? '\0'
+        : ((0 == offset_method.compare("Add", Qt::CaseInsensitive)) ? '+' : '-');
+    uint64_t addr_offset = ('\0' == offset_op) ? 0 : this->spnboxAddrBase->value();
+    uint64_t addr = 0;
+    uint64_t value = 0;
+    const std::string &input = textbox.toPlainText().toStdString();
+    const char *ptr = input.c_str();
+    int table_seq = 1;
 
-    for (int i = 0; i < 3; ++i)
+#define IS_DELIM_OR_NULL(c)     ((left_delim == (c)) || (right_delim == (c)) || ('\0' == (c)))
+
+    while (true)
     {
-        int addr = i * 4;
+        if (left_delim != *ptr)
+            while (left_delim != *++ptr && '\0' != *ptr);
+
+        if ('\0' == *ptr) // Empty box, or the final array item.
+            break;
+
+        if (left_delim != *ptr)
+        {
+            this->error_box("Invalid Format", QString::asprintf("No %c for item[%d]!\n\nConversion aborted!",
+                left_delim, table_seq));
+            break;
+        }
+
+        char c;
+
+        do
+        {
+            c = *++ptr;
+
+            if (IS_HEX_CHAR(c) || IS_DELIM_OR_NULL(c))
+                break;
+        }
+        while (true);
+
+        if (IS_DELIM_OR_NULL(c))
+        {
+            this->error_box("Invalid Format", QString::asprintf("No address for item[%d]!\n\nConversion aborted!",
+                table_seq));
+            break;
+        }
+
+        char *end_ptr;
+
+        addr = strtoull(ptr, &end_ptr, 16);
+        if ('+' == offset_op)
+            addr += addr_offset;
+        else
+            addr -= addr_offset;
+
+        if (/*'\0' != *ptr && */'\0' == *end_ptr) // Entire string has been parsed.
+        {
+            this->error_box("Invalid Format", QString::asprintf("No value for item[%d]!\n\nConversion aborted!",
+                table_seq));
+            break;
+        }
+
+        ptr = end_ptr;
+        do
+        {
+            c = *++ptr;
+
+            if (IS_HEX_CHAR(c) || IS_DELIM_OR_NULL(c))
+                break;
+        }
+        while (true);
+
+        if (IS_DELIM_OR_NULL(c))
+        {
+            this->error_box("Invalid Format", QString::asprintf("No value for item[%d]!\n\nConversion aborted!",
+                table_seq));
+            break;
+        }
+
+        value = strtoull(ptr, &end_ptr, 16);
+
+        ptr = end_ptr;
+        do
+        {
+            c = *ptr++;
+
+            if ((right_delim == c) || (left_delim == c) || ('\0' == c))
+                break;
+        }
+        while (true);
+
+        if (right_delim != c)
+        {
+            this->error_box("Invalid Format", QString::asprintf("No %c for item[%d]!\n\nConversion aborted!",
+                right_delim, table_seq));
+            break;
+        }
+
         auto orig_key_iter = this->m_reg_addr_map.find(addr);
 
         if (this->m_reg_addr_map.end() == orig_key_iter)
         {
-            qtCErrV(::, "[%d] No such a register with address = 0x%x\n", i, addr);
+            qtCErrV(::, "[%d] No such a register with address = 0x%lx\n", table_seq, addr);
             continue;
         }
 
@@ -1193,13 +1279,13 @@ int RegPanel::make_register_tables(const QTextEdit &textbox, const QString &modu
 
         if (!orig_value.isArray())
         {
-            qtCErrV(::, "[%d] Value of register[%s] is not an array!\n", i, orig_key.toStdString().c_str());
+            qtCErrV(::, "[%d] Value of register[%s] is not an array!\n", table_seq, orig_key.toStdString().c_str());
             continue;
         }
 
         const QJsonArray &orig_val_arr = orig_value.toArray();
         QString dest_key = find_referenced_register_if_any(modules_dict, orig_key, orig_val_arr);
-        QString name_prefix = QString::asprintf("reg[%d]", i);
+        QString name_prefix = QString::asprintf("reg[%d]", table_seq);
         QTableWidget *reg_table;
 
         if (dest_key.isEmpty())
@@ -1207,13 +1293,13 @@ int RegPanel::make_register_tables(const QTextEdit &textbox, const QString &modu
             uint64_t default_value = get_default_value(modules_dict, orig_key);
 
             reg_table = this->make_register_table(scroll_widget, name_prefix, orig_key, orig_val_arr,
-                default_value, addr);
+                default_value, value);
         }
         else
         {
             if (!modules_dict.contains(dest_key))
             {
-                qtCErrV(::, "[%d] No such a register: %s\n", i, dest_key.toStdString().c_str());
+                qtCErrV(::, "[%d] No such a register: %s\n", table_seq, dest_key.toStdString().c_str());
                 continue;
             }
 
@@ -1221,28 +1307,30 @@ int RegPanel::make_register_tables(const QTextEdit &textbox, const QString &modu
 
             if (!dest_value.isArray())
             {
-                qtCErrV(::, "[%d] Value of register[%s] is not an array!\n", i, dest_key.toStdString().c_str());
+                qtCErrV(::, "[%d] Value of register[%s] is not an array!\n", table_seq, dest_key.toStdString().c_str());
                 continue;
             }
 
             uint64_t default_value = get_default_value(modules_dict, dest_key);
 
             reg_table = this->make_register_table(scroll_widget, name_prefix, dest_key, dest_value.toArray(),
-                default_value, addr);
+                default_value, value);
         }
 
         vlayout->addWidget(reg_table, /* stretch = */0, Qt::AlignTop);
 
-        if ((++table_count) < 2)
-        {
-            auto msg_handler = qInstallMessageHandler(nullptr); // Restore to the default one for auto-newline.
+        ++table_seq;
+    } // while (true)
 
-            reg_table->dumpObjectTree();
-            qInstallMessageHandler(msg_handler); // Restore to the customized one.
-        }
+    if (table_seq <= 1)
+    {
+        if (input.size() > 0)
+            this->error_box("Invalid Format", QString::asprintf("Missing delimiter: %c or %c", left_delim, right_delim));
+        else
+            this->error_box("Empty Contents", "Are you kidding?!");
     }
 
-    return table_count;
+    return table_seq - 1;
 }
 
 void RegPanel::clear_register_tables(void)
@@ -1301,11 +1389,110 @@ void RegPanel::clear_register_tables(void)
     } // for (auto &i : scroll_widget->children())
 }
 
+#define DEFAULT_BITWIDTH        32
+
+static inline int get_bitwidth(const QJsonObject &doc_dict, const QString &key)
+{
+    if (!doc_dict.contains(key))
+        return DEFAULT_BITWIDTH;
+
+    const QJsonValue &width_val = doc_dict.value(key);
+    int result = width_val.isDouble() ? width_val.toDouble()
+        : (width_val.isString() ? atoi(width_val.toString().toStdString().c_str()) : DEFAULT_BITWIDTH);
+
+    return (8 == result || 16 == result || 32 == result || 64 == result) ? result : DEFAULT_BITWIDTH;
+}
+
+static inline const char* bitwidth_format_string(int bitwidth)
+{
+    if (8 == bitwidth)
+        return "0x%02lx";
+
+    if (16 == bitwidth)
+        return "0x%04lx";
+
+    if (64 == bitwidth)
+        return "0x%016lx";
+
+    return "0x%08lx";
+}
+
 int RegPanel::generate_register_array_items(const QString &module_name, const QTextEdit &textbox)
 {
-    this->warning_box("Unimplemented", __PRETTY_FUNCTION__);
+    QVBoxLayout *vlayout = this->vlayoutRegTables;
+    QWidget *scroll_widget = vlayout->parentWidget();
+    int delim_index = this->lstDelimeter->currentIndex();
+    const char left_delim = (CURLY_BRACES == delim_index) ? '{' : '[';
+    const char right_delim = (CURLY_BRACES == delim_index) ? '}' : ']';
+    const QJsonObject &doc_dict = this->json().object();
+    const char *addr_width_fmt = bitwidth_format_string(get_bitwidth(doc_dict, "__addr_bits__"));
+    const char *value_width_fmt = bitwidth_format_string(get_bitwidth(doc_dict, "__data_bits__"));
+    const QString &offset_method = this->lstAddrBaseMethod->currentText();
+    char offset_op = (0 == offset_method.compare("Ignore", Qt::CaseInsensitive)) ? '\0'
+        : ((0 == offset_method.compare("Add", Qt::CaseInsensitive)) ? '+' : '-');
+    uint64_t addr_offset = ('\0' == offset_op) ? 0 : this->spnboxAddrBase->value();
+    uint64_t addr = 0;
+    uint64_t value = 0;
+    QString result;
+    int count = 0;
+    auto is_reg_widget = [](const std::string &widget_name) {
+        return (0 == widget_name.compare(0, 4, "reg["));
+    };
 
-    return 0;
+    for (auto &i : scroll_widget->children())
+    {
+        const std::string &iname = i->objectName().toStdString();
+
+        if (!is_reg_widget(iname))
+            continue;
+
+        for (auto &j : i->children())
+        {
+            bool is_for_table = false;
+
+            for (auto &k : j->children())
+            {
+                const std::string &kname = k->objectName().toStdString();
+
+                if (!is_reg_widget(kname))
+                    continue;
+
+                is_for_table = true;
+
+                if (std::string::npos != kname.rfind("_title"))
+                {
+                    addr = strtoull(dynamic_cast<QLineEdit *>(k)->text().toStdString().c_str(), nullptr, 16);
+                    //addr = dynamic_cast<QLineEdit *>(k)->text().toULongLong(nullptr, 16);
+                    continue;
+                }
+
+                if (std::string::npos != kname.rfind("_full_values"))
+                {
+                    value = dynamic_cast<RegFullValuesRow *>(k)->current_value();
+                    continue;
+                }
+            } // for (auto &k : j->children())
+
+            if (!is_for_table)
+                continue;
+
+            ++count;
+
+            if ('+' == offset_op)
+                addr += addr_offset;
+            else
+                addr -= addr_offset;
+
+            result.append(left_delim).append(' ')
+                .append(QString::asprintf(addr_width_fmt, addr)).append(", ")
+                .append(QString::asprintf(value_width_fmt, value))
+                .append(' ').append(right_delim).append(",\n");
+        } // for (auto &j : i->children())
+    } // for (auto &i : scroll_widget->children())
+
+    this->txtInput->setText(result);
+
+    return count;
 }
 
 /*
@@ -1327,5 +1514,8 @@ int RegPanel::generate_register_array_items(const QString &module_name, const QT
  *
  * >>> 2024-09-25, Man Hung-Coeng <udc577@126.com>:
  *  01. Support generating register graphical tables from configuration file.
+ *
+ * >>> 2024-09-26, Man Hung-Coeng <udc577@126.com>:
+ *  01. Support conversion between graphical tables and text box.
  */
 
