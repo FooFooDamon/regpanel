@@ -8,7 +8,7 @@ exists($${TARGET}.debug.pri) {
 }
 
 FORMS += *.ui
-HEADERS += $${TARGET}.hpp
+HEADERS += $${TARGET}.hpp private_widgets.hpp
 SOURCES += *.cpp
 QT += widgets
 

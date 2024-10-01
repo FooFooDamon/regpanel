@@ -24,18 +24,17 @@
 #include <QtGui/QtGui>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QMessageBox>
-#include <QTableWidget>
-#include <QHeaderView>
+#include <QtWidgets/QTableWidget>
+#include <QtWidgets/QHeaderView>
 
 #include "qt_print.hpp"
+#include "private_widgets.hpp"
 
 #if 0
 #define ABORT(errcode)                          QApplication::exit(errcode)
 #else
 #define ABORT(errcode)                          exit(errcode)
 #endif
-
-#define SOFT_GREEN_COLOR                        "#c7edcc"
 
 const QTextCodec *G_TEXT_CODEC = QTextCodec::codecForName("UTF8"/*"GB2312"*/);
 
@@ -276,38 +275,6 @@ void RegPanel::on_chkboxAsInput_stateChanged(int checked)
     this->txtInput->setPalette(palette);
 }
 
-static int resize_table_height(QTableWidget *table, bool header_row_visible)
-{
-    int h;
-    int table_height = 0;
-    //const std::string &table_name = table->objectName().toStdString();
-
-    if (header_row_visible)
-    {
-        h = table->horizontalHeader()->height();
-        table_height += h;
-        //qtDebugV(::, "%s: table_height += %d\n", table_name.c_str(), h);
-    }
-
-    for (int r = 0; r < table->rowCount(); ++r)
-    {
-        h = table->rowHeight(r);
-        table_height += h;
-        //qtDebugV(::, "%s: table_height += %d\n", table_name.c_str(), h);
-    }
-
-    //qtDebugV("Before setting: min/max height = %d/%d\n", table->minimumHeight(), table->maximumHeight());
-    table->setMinimumHeight(table_height);
-    table->setMaximumHeight(table_height);
-    //qtDebugV("After setting, min/max height = %d/%d\n", table->minimumHeight(), table->maximumHeight());
-    table->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
-    //table->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
-    table->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-    table->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-
-    return table_height;
-}
-
 void RegPanel::on_btnConvert_clicked(void)
 {
     if (this->lstModule->currentIndex() < 0)
@@ -471,520 +438,6 @@ bool RegPanel::load_config_file(const char *path)
 
     return true;
 }
-
-class RegFullValuesRow : public QTableWidget
-{
-private:
-    Q_DISABLE_COPY_MOVE(RegFullValuesRow);
-
-public:
-    RegFullValuesRow() = delete;
-
-    RegFullValuesRow(QWidget *parent, const QString &name_prefix, uint64_t default_value, uint64_t current_value)
-        : QTableWidget(1, 5, parent)
-        , m_def_label("Default:  0x", this)
-        , m_def_value(this)
-        , m_curr_label("Current:  0x", this)
-        , m_curr_value(this)
-    {
-        m_def_label.setObjectName(name_prefix + "_full_values_def_label");
-        m_def_value.setObjectName(name_prefix + "_full_values_def_val");
-        m_def_value.setDisplayIntegerBase(16);
-        m_def_value.setRange(0, 0x7fffffff); // FIXME: unsigned
-        m_def_value.setValue(default_value);
-        m_def_value.setReadOnly(true);
-
-        m_curr_label.setObjectName(name_prefix + "_full_values_curr_label");
-        m_curr_value.setObjectName(name_prefix + "_full_values_curr_val");
-        m_curr_value.setDisplayIntegerBase(16);
-        m_curr_value.setRange(0, 0x7fffffff); // FIXME: unsigned
-        m_curr_value.setValue(current_value);
-        m_curr_value.setStyleSheet("background-color: " SOFT_GREEN_COLOR "; color: black;");
-
-        this->setObjectName(name_prefix + "_full_values");
-        this->setShowGrid(false);
-        this->horizontalHeader()->setVisible(false);
-        this->verticalHeader()->setVisible(false);
-        this->setCellWidget(0, 0, &m_def_label);
-        this->setCellWidget(0, 1, &m_def_value);
-        // NOTE: Leave column 2 blank on purpose.
-        this->setCellWidget(0, 3, &m_curr_label);
-        this->setCellWidget(0, 4, &m_curr_value);
-        this->setColumnWidth(0, m_def_label.width());
-        this->setColumnWidth(3, m_curr_label.width());
-    }
-
-    ~RegFullValuesRow()
-    {
-        this->clear();
-        this->setRowCount(0);
-    }
-
-    void sync(uint64_t current_value)
-    {
-        // FIXME: disconnect slot
-        m_curr_value.setValue(current_value);
-        // FIXME: connect slot again
-    }
-
-    inline uint64_t current_value(void)
-    {
-        return m_curr_value.value();
-    }
-
-// TODO: m_curr_value slot
-
-private:
-    QLabel m_def_label;
-    QSpinBox m_def_value;
-    QLabel m_curr_label;
-    QSpinBox m_curr_value;
-};
-
-class RegBitsDescCell : public QTableWidget
-{
-private:
-    Q_DISABLE_COPY(RegBitsDescCell);
-
-public:
-    RegBitsDescCell() = delete;
-
-    const uint16_t INVALID_INDEX = 0xffff;
-
-    RegBitsDescCell(QWidget *parent, const QString &name_prefix, const QString &title, const QString &hint,
-        uint64_t value, uint64_t value_max, bool is_hex_value, const QJsonObject *enum_dict)
-        : QTableWidget(2, 1, parent)
-        , m_title(title, this)
-        , m_digit(nullptr)
-        , m_enum(nullptr)
-        , m_badvalue_index(INVALID_INDEX)
-    {
-        QString title_style = QString::asprintf("QLineEdit{ background: transparent; border: none; %s }",
-            hint.isEmpty() ? "" : "color: blue;");
-
-        m_title.setObjectName(name_prefix + "_desc_title");
-        if (!hint.isEmpty())
-        {
-            QFont font;
-
-            font.setUnderline(true);
-            m_title.setFont(font);
-            title_style += "QToolTip { color: white; }";
-            m_title.setToolTip(hint);
-            m_title.setWhatsThis(hint);
-        }
-        m_title.setStyleSheet(title_style);
-        m_title.setReadOnly(true);
-
-        if (enum_dict)
-        {
-            int index = 0;
-
-            m_enum = new QComboBox(this);
-            m_enum->setObjectName(name_prefix + "_desc_enum");
-            m_values.reserve(enum_dict->size());
-            for (QJsonObject::const_iterator iter = enum_dict->begin(); enum_dict->end() != iter; ++iter)
-            {
-                const std::string &key_str = iter.key().toStdString();
-                char *ptr;
-                uint32_t key_digit = strtoul(key_str.c_str(), &ptr, 16);
-
-                if (0 == key_digit && key_str.c_str() == ptr)
-                    m_badvalue_index = index++;
-
-                m_values.push_back(key_digit);
-
-                m_enum->addItem(iter.value().toString("Invalid"));
-            }
-        }
-        else
-        {
-            m_digit = new QSpinBox(this);
-            m_digit->setObjectName(name_prefix + "_desc_digit");
-            m_digit->setDisplayIntegerBase(is_hex_value ? 16 : 10);
-            m_digit->setRange(0, value_max);
-            m_digit->setStyleSheet("background-color: " SOFT_GREEN_COLOR "; color: black;");
-            m_digit->setToolTip(is_hex_value ? "hex" : "decimal");
-        }
-        this->sync(value);
-
-        this->setObjectName(name_prefix + "_desc");
-        this->setShowGrid(false);
-        this->verticalHeader()->setVisible(false);
-        this->horizontalHeader()->setVisible(false);
-        this->horizontalHeader()->setStretchLastSection(true); // Auto-stretch for the final columns
-        this->setCellWidget(0, 0, &m_title);
-        if (enum_dict)
-            this->setCellWidget(1, 0, m_enum);
-        else
-            this->setCellWidget(1, 0, m_digit);
-    }
-
-    RegBitsDescCell(RegBitsDescCell &&src)
-        : QTableWidget(src.rowCount(), src.columnCount(), src.parentWidget())
-        , m_title(src.m_title.text(), this)
-        , m_digit(src.m_digit)
-        , m_enum(src.m_enum)
-        , m_values(std::move(src.m_values))
-        , m_badvalue_index(src.m_badvalue_index)
-    {
-        src.setParent(nullptr);
-        src.m_digit = nullptr;
-        src.m_enum = nullptr;
-        m_digit->setParent(this);
-        m_enum->setParent(this);
-    }
-
-    ~RegBitsDescCell()
-    {
-        this->clear();
-        this->setRowCount(0);
-
-        if (m_digit)
-        {
-            delete m_digit;
-            m_digit = nullptr;
-        }
-
-        if (m_enum)
-        {
-            delete m_enum;
-            m_enum = nullptr;
-        }
-    }
-
-    void sync(uint32_t value)
-    {
-        // FIXME: disconnect slot
-
-        if (m_digit)
-            m_digit->setValue(value);
-        else
-        {
-            for (size_t i = 0; i < m_values.size(); ++i)
-            {
-                if (value == m_values[i])
-                {
-                    m_enum->setCurrentIndex(i);
-
-                    return;
-                }
-            }
-
-            if (INVALID_INDEX != m_badvalue_index)
-                m_enum->setCurrentIndex(m_badvalue_index);
-        }
-
-        // FIXME: connect slot again
-    }
-
-// TODO: m_digit slot and m_enum slot
-
-private:
-    QLineEdit m_title;
-    QSpinBox *m_digit;
-    QComboBox *m_enum;
-    std::vector<uint32_t> m_values;
-    uint16_t m_badvalue_index;
-};
-
-std::pair<int8_t, int8_t> check_bits_range(const char *range)
-{
-    std::pair<int8_t, int8_t> result = { -1, -1 };
-    char *end_ptr;
-
-    result.first = strtoul(range, &end_ptr, 10);
-
-    if ((0 == result.first && range == end_ptr) // No digits at all.
-        || result.first > 63)
-    {
-        result.first = -1;
-
-        return result;
-    }
-
-    if ('\0' != *range && '\0' == *end_ptr) // Entire string has been parsed.
-    {
-        result.second = result.first;
-
-        return result;
-    }
-
-    char *colon_ptr = (':' == *end_ptr) ? end_ptr : strchr(end_ptr, ':');
-
-    if (nullptr == colon_ptr || '\0' == colon_ptr[1]) // Only a single bit.
-    {
-        result.second = result.first;
-
-        return result;
-    }
-
-    result.second = atoi(colon_ptr + 1);
-
-    if (result.second < 0)
-    {
-        result.first = -1;
-
-        return result;
-    }
-
-    if (result.second > result.first)
-        result.first = result.second = -1;
-
-    return result;
-}
-
-enum BitsItemDesc
-{
-    BITS_ITEM_DESC_UNKNOWN,
-    BITS_ITEM_DESC_TODO,
-    BITS_ITEM_DESC_RESERVED,
-    BITS_ITEM_DESC_ENUM,
-    BITS_ITEM_DESC_BOOL,
-    BITS_ITEM_DESC_INVBOOL,
-    BITS_ITEM_DESC_DECIMAL,
-    BITS_ITEM_DESC_HEX
-};
-
-static BitsItemDesc check_bits_item_desc_type(const char *desc)
-{
-    if (0 == strcasecmp(desc, "TODO"))
-        return BITS_ITEM_DESC_TODO;
-
-    if (0 == strcasecmp(desc, "reserved"))
-        return BITS_ITEM_DESC_RESERVED;
-
-    if (0 == strcasecmp(desc, "enum"))
-        return BITS_ITEM_DESC_ENUM;
-
-    if (0 == strcasecmp(desc, "bool"))
-        return BITS_ITEM_DESC_BOOL;
-
-    if (0 == strcasecmp(desc, "invbool"))
-        return BITS_ITEM_DESC_INVBOOL;
-
-    if (0 == strcasecmp(desc, "decimal"))
-        return BITS_ITEM_DESC_DECIMAL;
-
-    if (0 == strcasecmp(desc, "hex"))
-        return BITS_ITEM_DESC_HEX;
-
-    return BITS_ITEM_DESC_UNKNOWN;
-}
-
-class RegBitsTable : public QTableWidget
-{
-private:
-    Q_DISABLE_COPY_MOVE(RegBitsTable);
-
-public:
-    RegBitsTable() = delete;
-
-    RegBitsTable(QWidget *parent, const QString &name_prefix,
-        const char *dict_key, const QJsonArray &dict_value,
-        uint64_t default_value, uint64_t current_value)
-        : QTableWidget(dict_value.count(), 4, parent)
-    {
-        QStringList header_texts;
-        int value_size = dict_value.count();
-        auto gen_bits_mask = [](int8_t high, int8_t low) {
-            return ~(0xffffffffffffffffULL << (high - low + 1));
-        };
-        auto extract_from_full_value = [&gen_bits_mask](uint64_t full_value, int8_t high, int8_t low) {
-            return (full_value >> low) & gen_bits_mask(high, low);
-        };
-
-        this->setObjectName(name_prefix + "_bits");
-        //this->setDragEnabled(false); // doesn't work
-        this->setContentsMargins(0, 0, 0, 0);
-        this->setHorizontalHeaderLabels(header_texts << "Bits" << "Default" << "Current" << "Desc");
-        this->horizontalHeader()->setStretchLastSection(true); // Auto-stretch for the final columns
-        this->m_ranges.reserve(value_size);
-        this->m_def_values.reserve(value_size);
-        this->m_curr_values.reserve(value_size);
-        this->m_desc_items.reserve(value_size);
-        for (int i = 0; i < value_size; ++i)
-        {
-            const QJsonValue &item = dict_value[i];
-
-            if (!item.isObject())
-            {
-                qtCErrV(::, "reg[%s]: item[%d] is not a dictionary/map!\n", dict_key, i);
-                continue;
-            }
-
-            const QJsonObject &dict = item.toObject();
-
-            if (!dict.contains("attr"))
-            {
-                qtCErrV(::, "reg[%s]: item[%d] does not contain an \"attr\" property!\n", dict_key, i);
-                continue;
-            }
-
-            const QJsonValue &attr_val = dict.value("attr");
-
-            if (!attr_val.isArray())
-            {
-                qtCErrV(::, "reg[%s]: item[%d]: Value of \"attr\" property is not an array!\n", dict_key, i);
-                continue;
-            }
-
-            const QJsonArray &attr_arr = attr_val.toArray();
-            int attr_size = attr_arr.count();
-
-            if (attr_size < 3)
-            {
-                qtCErrV(::, "reg[%s]: item[%d].attr: Too few elements, just %d!\n", dict_key, i, attr_size);
-                continue;
-            }
-
-            const std::string &bits_range = attr_arr[0].toString().toStdString();
-            auto range_pair = check_bits_range(bits_range.c_str());
-
-            if (range_pair.first < 0 || range_pair.second < 0)
-            {
-                qtCErrV(::, "reg[%s]: item[%d].attr: Invalid bits range: %s\n", dict_key, i, bits_range.c_str());
-                continue;
-            }
-
-            const std::string &desc_type_str = attr_arr[2].toString().toStdString();
-            auto desc_type = check_bits_item_desc_type(desc_type_str.c_str());
-
-            if (BITS_ITEM_DESC_UNKNOWN == desc_type)
-            {
-                qtCErrV(::, "reg[%s]: item[%d].attr[%s]: Invalid description type: %s\n",
-                    dict_key, i, bits_range.c_str(), desc_type_str.c_str());
-                continue;
-            }
-            else if (BITS_ITEM_DESC_ENUM == desc_type)
-            {
-                if (!dict.contains("desc"))
-                {
-                    qtCErrV(::, "reg[%s]: item[%d] does not contain an \"desc\" property!\n", dict_key, i);
-                    continue;
-                }
-
-                const QJsonValue &desc_val = dict.value("desc");
-
-                if (!desc_val.isObject())
-                {
-                    qtCErrV(::, "reg[%s]: item[%d]: Value of \"desc\" property is not a dictionary/map!\n", dict_key, i);
-                    continue;
-                }
-
-                if (desc_val.toObject().count() <= 0)
-                {
-                    qtCErrV(::, "reg[%s]: item[%d]: \"desc\" dictionary/map is empty!\n", dict_key, i);
-                    continue;
-                }
-            }
-            else if (desc_type > BITS_ITEM_DESC_RESERVED && attr_size < 4)
-            {
-                qtCErrV(::, "reg[%s]: item[%d].attr[%s]: Missing title for description type[%s]\n",
-                    dict_key, i, bits_range.c_str(), desc_type_str.c_str());
-                continue;
-            }
-            else
-            {
-                ; // nothing but for the sake of Code of Conduct
-            }
-
-            QString cell_name_prefix = name_prefix + QString::asprintf("_bits[%s]", bits_range.c_str());
-            uint64_t curr_value = extract_from_full_value(current_value, range_pair.first, range_pair.second);
-            uint64_t value_max = gen_bits_mask(range_pair.first, range_pair.second);
-
-            this->m_ranges.push_back(new QLabel(QString::fromStdString(bits_range), this));
-            this->m_ranges.back()->setObjectName(cell_name_prefix);
-            this->setCellWidget(i, 0, this->m_ranges.back());
-
-            this->m_def_values.push_back(new QSpinBox(this));
-            this->m_def_values.back()->setObjectName(cell_name_prefix + "_defval");
-            this->m_def_values.back()->setReadOnly(true);
-            this->m_def_values.back()->setStyleSheet("background-color: darkgray; color: white;");
-            this->m_def_values.back()->setDisplayIntegerBase(16);
-            this->m_def_values.back()->setRange(0, value_max);
-            this->m_def_values.back()->setValue(
-                extract_from_full_value(default_value, range_pair.first, range_pair.second));
-            this->setCellWidget(i, 1, this->m_def_values.back());
-
-            this->m_curr_values.push_back(new QSpinBox(this));
-            this->m_curr_values.back()->setObjectName(cell_name_prefix + "_currval");
-            if (0 == attr_arr[1].toString().compare("RO", Qt::CaseInsensitive))
-            {
-                this->m_curr_values.back()->setReadOnly(true);
-                this->m_curr_values.back()->setStyleSheet("background-color: darkgray; color: white;");
-            }
-            else
-            {
-                this->m_curr_values.back()->setStyleSheet("background-color: " SOFT_GREEN_COLOR "; color: black;");
-            }
-            this->m_curr_values.back()->setDisplayIntegerBase(16);
-            this->m_curr_values.back()->setRange(0, value_max);
-            this->m_curr_values.back()->setValue(curr_value);
-            this->setCellWidget(i, 2, this->m_curr_values.back());
-
-            if (desc_type > BITS_ITEM_DESC_RESERVED)
-            {
-                bool enumerable = (desc_type >= BITS_ITEM_DESC_ENUM && desc_type <= BITS_ITEM_DESC_INVBOOL);
-                QJsonObject bool_dict({ { "0", "false" }, { "1", "true" } });
-                QJsonObject invbool_dict({ { "0", "true" }, { "1", "false" } });
-                const QJsonObject &enum_dict = (BITS_ITEM_DESC_ENUM == desc_type) ? dict.value("desc").toObject()
-                    : ((BITS_ITEM_DESC_BOOL == desc_type) ? bool_dict : invbool_dict);
-
-                this->m_desc_items.push_back(
-                    new RegBitsDescCell(this, cell_name_prefix, attr_arr[3].toString(),
-                        (attr_size > 4) ? attr_arr[4].toString() : "",
-                        curr_value, value_max, /* is_hex_value = */(BITS_ITEM_DESC_HEX == desc_type),
-                        enumerable ? &enum_dict : nullptr)
-                );
-                this->setRowHeight(i, resize_table_height(
-                    dynamic_cast<RegBitsDescCell *>(this->m_desc_items.back()), /* header_row_visible = */false));
-            }
-            else
-            {
-                this->m_desc_items.push_back(new QLabel(QString::fromStdString(desc_type_str), this));
-                this->m_desc_items.back()->setObjectName(cell_name_prefix + "_desc");
-            }
-            this->setCellWidget(i, 3, this->m_desc_items.back());
-        } // for (int i : dict_value.count())
-    }
-
-    ~RegBitsTable()
-    {
-        this->clear();
-        this->setRowCount(0);
-
-        for (auto &i : m_ranges)
-        {
-            delete i;
-        }
-        std::vector<QLabel *>().swap(m_ranges);
-
-        for (auto &i : m_def_values)
-        {
-            delete i;
-        }
-        std::vector<QSpinBox *>().swap(m_def_values);
-
-        for (auto &i : m_curr_values)
-        {
-            delete i;
-        }
-        std::vector<QSpinBox *>().swap(m_curr_values);
-
-        for (auto &i : m_desc_items)
-        {
-            delete i;
-        }
-        std::vector<QWidget *>().swap(m_desc_items);
-    }
-
-private:
-    std::vector<QLabel *> m_ranges;
-    std::vector<QSpinBox *> m_def_values;
-    std::vector<QSpinBox *> m_curr_values;
-    std::vector<QWidget *> m_desc_items;
-};
 
 static QLineEdit* make_register_title(QWidget *parent, const QString &table_prefix, const QString &title_text)
 {
@@ -1325,7 +778,8 @@ int RegPanel::make_register_tables(const QTextEdit &textbox, const QString &modu
     if (table_seq <= 1)
     {
         if (input.size() > 0)
-            this->error_box("Invalid Format", QString::asprintf("Missing delimiter: %c or %c", left_delim, right_delim));
+            this->error_box("Format Error", "Select the correct delimiter type, "
+                "and write address-value pairs according to the placeholder text.");
         else
             this->error_box("Empty Contents", "Are you kidding?!");
     }
@@ -1349,42 +803,27 @@ void RegPanel::clear_register_tables(void)
         if (!is_reg_widget(iname))
             continue;
 
-        for (auto &j : i->children())
-        {
-            bool is_for_table = false;
+        auto *outer_table = dynamic_cast<QTableWidget *>(i);
+        auto *title_cell = dynamic_cast<QLineEdit *>(outer_table->cellWidget(0, 0));
+        auto *full_values_cell = dynamic_cast<RegFullValuesRow *>(outer_table->cellWidget(1, 0));
+        auto *bits_table_cell = dynamic_cast<RegBitsTable *>(outer_table->cellWidget(2, 0));
 
-            for (auto &k : j->children())
-            {
-                const std::string &kname = k->objectName().toStdString();
+        qtCDebugV(::, "\tDeleting: %s (%s)\n", title_cell->objectName().toStdString().c_str(),
+            title_cell->text().toStdString().c_str());
+        delete title_cell;
 
-                if (!is_reg_widget(kname))
-                    continue;
+        if (print_flag) qtCDebugV(::, "\tDeleting: %s\n", full_values_cell->objectName().toStdString().c_str());
+        delete full_values_cell;
 
-                is_for_table = true;
-
-                if (std::string::npos != kname.rfind("_title"))
-                {
-                    qtCDebugV(::, "\t\tDeleting: %s (%s)\n", kname.c_str(),
-                        dynamic_cast<QLineEdit *>(k)->text().toStdString().c_str());
-                    delete k;
-
-                    continue;
-                }
-
-                if (print_flag) qtCDebugV(::, "\t\tDeleting: %s\n", kname.c_str());
-                delete k;
-            } // for (auto &k : j->children())
-
-            if (!is_for_table)
-                continue;
-
-            if (print_flag) qtCDebugV(::, "\tNo need to delete: %s\n", j->objectName().toStdString().c_str());
-            //delete j;
-        } // for (auto &j : i->children())
+        if (print_flag) qtCDebugV(::, "\tDeleting: %s\n", bits_table_cell->objectName().toStdString().c_str());
+        delete bits_table_cell;
 
         qtCDebugV(::, "Deleting: %s\n", iname.c_str());
-        vlayout->removeWidget(dynamic_cast<QWidget *>(i));
-        delete i;
+        vlayout->removeWidget(outer_table);
+        //outer_table->clear();
+        //outer_table->setRowCount(0);
+        delete outer_table;
+
         print_flag = false;
     } // for (auto &i : scroll_widget->children())
 }
@@ -1441,53 +880,28 @@ int RegPanel::generate_register_array_items(const QString &module_name, const QT
 
     for (auto &i : scroll_widget->children())
     {
-        const std::string &iname = i->objectName().toStdString();
-
-        if (!is_reg_widget(iname))
+        if (!is_reg_widget(i->objectName().toStdString()))
             continue;
 
-        for (auto &j : i->children())
-        {
-            bool is_for_table = false;
+        auto *outer_table = dynamic_cast<QTableWidget *>(i);
+        auto *title_cell = dynamic_cast<QLineEdit *>(outer_table->cellWidget(0, 0));
+        auto *full_values_cell = dynamic_cast<RegFullValuesRow *>(outer_table->cellWidget(1, 0));
 
-            for (auto &k : j->children())
-            {
-                const std::string &kname = k->objectName().toStdString();
+        addr = strtoull(title_cell->text().toStdString().c_str(), nullptr, 16);
+        //addr = title_cell->text().toULongLong(nullptr, 16); // will fail due to the "0x" prefix.
+        if ('+' == offset_op)
+            addr += addr_offset;
+        else
+            addr -= addr_offset;
 
-                if (!is_reg_widget(kname))
-                    continue;
+        value = full_values_cell->current_value();
 
-                is_for_table = true;
+        result.append(left_delim).append(' ')
+            .append(QString::asprintf(addr_width_fmt, addr)).append(", ")
+            .append(QString::asprintf(value_width_fmt, value))
+            .append(' ').append(right_delim).append(",\n");
 
-                if (std::string::npos != kname.rfind("_title"))
-                {
-                    addr = strtoull(dynamic_cast<QLineEdit *>(k)->text().toStdString().c_str(), nullptr, 16);
-                    //addr = dynamic_cast<QLineEdit *>(k)->text().toULongLong(nullptr, 16);
-                    continue;
-                }
-
-                if (std::string::npos != kname.rfind("_full_values"))
-                {
-                    value = dynamic_cast<RegFullValuesRow *>(k)->current_value();
-                    continue;
-                }
-            } // for (auto &k : j->children())
-
-            if (!is_for_table)
-                continue;
-
-            ++count;
-
-            if ('+' == offset_op)
-                addr += addr_offset;
-            else
-                addr -= addr_offset;
-
-            result.append(left_delim).append(' ')
-                .append(QString::asprintf(addr_width_fmt, addr)).append(", ")
-                .append(QString::asprintf(value_width_fmt, value))
-                .append(' ').append(right_delim).append(",\n");
-        } // for (auto &j : i->children())
+        ++count;
     } // for (auto &i : scroll_widget->children())
 
     this->txtInput->setText(result);
@@ -1517,5 +931,11 @@ int RegPanel::generate_register_array_items(const QString &module_name, const QT
  *
  * >>> 2024-09-26, Man Hung-Coeng <udc577@126.com>:
  *  01. Support conversion between graphical tables and text box.
+ *
+ * >>> 2024-10-01, Man Hung-Coeng <udc577@126.com>:
+ *  01. Optimize the loop traversal logic of clear_register_tables()
+ *      and generate_register_array_items().
+ *  02. Remove resize_table_height() and all private widget classes
+ *      to another new created header file and its source file.
  */
 
