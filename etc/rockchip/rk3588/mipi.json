@@ -17,7 +17,7 @@
 
         "0x0000 | VERSION": [
             { "attr": [ "31:1", "RO", "reserved" ] },
-            { "attr": [ "0", "RO", "udecimal", "version", "FIXME: Version of the csi2host with a single bit??" ] }
+            { "attr": [ "0", "RO", "udecimal", "version:", "FIXME: Version of the csi2host with a single bit??" ] }
         ],
 
         "0x0004 | N_LANES": [
@@ -165,10 +165,10 @@
         ],
 
         "0x0040 | CONTROL": [
-            { "attr": [ "31:26", "RW", "hex", "sw_datatype_le", "The datatype of line end" ] },
-            { "attr": [ "25:20", "RW", "hex", "sw_datatype_ls", "The datatype of line start" ] },
-            { "attr": [ "19:14", "RW", "hex", "sw_datatype_fe", "The datatype of frame end" ] },
-            { "attr": [ "13:8", "RW", "hex", "sw_datatype_fs", "The datatype of frame start" ] },
+            { "attr": [ "31:26", "RW", "udecimal", "sw_datatype_le", "The datatype of line end" ] },
+            { "attr": [ "25:20", "RW", "udecimal", "sw_datatype_ls", "The datatype of line start" ] },
+            { "attr": [ "19:14", "RW", "udecimal", "sw_datatype_fe", "The datatype of frame end" ] },
+            { "attr": [ "13:8", "RW", "udecimal", "sw_datatype_fs", "The datatype of frame start" ] },
             { "attr": [ "7:5", "RO", "reserved" ] },
             {
                 "attr": [ "4", "RW", "enum", "sw_dsi_en:" ],
