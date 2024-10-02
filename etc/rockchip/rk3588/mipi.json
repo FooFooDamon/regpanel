@@ -2,6 +2,10 @@
     "__addr_bits__": 16,
     "__data_bits__": 32,
 
+    "__maintainers__": [
+        "Man Hung-Coeng <udc577@126.com>"
+    ],
+
     "__modules__": [
         "MIPI CSI HOST",
         "MIPI CSI DPHY",
