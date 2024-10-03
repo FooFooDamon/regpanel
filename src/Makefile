@@ -72,6 +72,28 @@ debug_patch:
 ui_fix: ui_${TARGET}.h
 	sed -i 's/\(.*\<QPalette::PlaceholderText\>.*\)/\/\/\1/' $<
 
+__prepare_parent_dirs:
+	mkdir -p ${DESTDIR}/usr/local/bin ${DESTDIR}/usr/local/etc
+
+install: __prepare_parent_dirs
+	cp ${TARGET} ${DESTDIR}/usr/local/bin/
+	@if [ -e ${DESTDIR}/usr/local/etc/${TARGET} ]; then \
+		echo "*** Directory or link already exists: ${DESTDIR}/usr/local/etc/${TARGET}" >&2; \
+		echo "Check if it's installed by another project, and handle it manually before this installation." >&2; \
+	else \
+		set -x; ln -s $$(realpath $${PWD}/../etc) ${DESTDIR}/usr/local/etc/${TARGET}; \
+	fi
+
+uninstall: __prepare_parent_dirs
+	rm -f ${DESTDIR}/usr/local/bin/${TARGET}
+	@[ -e ${DESTDIR}/usr/local/etc/${TARGET} ] || exit 0; \
+	actual_dir_path="$$(realpath ${DESTDIR}/usr/local/etc/${TARGET})"; \
+	if [ "$${actual_dir_path}" = "$$(realpath $${PWD}/../etc)" ]; then \
+		set -x; rm ${DESTDIR}/usr/local/etc/${TARGET}; \
+	else \
+		echo "Ignored configuration installed by another project: $${actual_dir_path}" >&2; \
+	fi
+
 endif
 
 export DEPENDENCY_DIRS ?= $(abspath ../3rdparty)
