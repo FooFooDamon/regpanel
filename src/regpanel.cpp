@@ -41,6 +41,10 @@ const QTextCodec *G_TEXT_CODEC = QTextCodec::codecForName("UTF8"/*"GB2312"*/);
 RegPanel::RegPanel(const char *config_dir, QWidget *parent)
     : QDialog(parent)
     , m_config_dir(config_dir)
+    , m_prev_vendor_idx(-1)
+    , m_prev_chip_idx(-1)
+    , m_prev_file_idx(-1)
+    , m_prev_module_idx(-1)
 {
     setupUi(this);
 
@@ -82,6 +86,83 @@ void RegPanel::warning_box(const QString &title, const QString &text)
 void RegPanel::error_box(const QString &title, const QString &text)
 {
     SHOW_MSG_BOX(critical, title, text);
+}
+
+void RegPanel::closeEvent(QCloseEvent *event)/* override */
+{
+    QMessageBox::StandardButton button = QMessageBox::question(
+        this, "", "Exit now ?", QMessageBox::Yes | QMessageBox::No);
+
+    if (QMessageBox::Yes == button)
+        event->accept();
+    else
+        event->ignore();
+}
+
+void RegPanel::on_tab_currentChanged(int index)
+{
+    if (1 != this->tab->currentIndex()) // Not the tab page showing conversion result.
+        return;
+
+    const int vendor_idx = this->lstVendor->currentIndex();
+    const int chip_idx = this->lstChip->currentIndex();
+    const int file_idx = this->lstFile->currentIndex();
+    const int module_idx = this->lstModule->currentIndex();
+
+    if (vendor_idx == this->m_prev_vendor_idx
+        && chip_idx == this->m_prev_chip_idx
+        && file_idx == this->m_prev_file_idx
+        && module_idx == this->m_prev_module_idx)
+    {
+        return;
+    }
+
+    if (module_idx < 0)
+    {
+        this->error_box("No Module", "No further operations can be performed without a valid module!");
+        this->tab->disconnect(this->tab, SIGNAL(currentChanged(int)), this, SLOT(on_tab_currentChanged(int)));
+        this->tab->setCurrentIndex(0); // Switch back to the "Load" page.
+        this->tab->connect(this->tab, SIGNAL(currentChanged(int)), this, SLOT(on_tab_currentChanged(int)));
+
+        return;
+    }
+
+    this->m_prev_vendor_idx = vendor_idx;
+    this->m_prev_chip_idx = chip_idx;
+    this->m_prev_file_idx = file_idx;
+    this->m_prev_module_idx = module_idx;
+
+    const QString &module_name = this->lstModule->currentText();
+    const QJsonObject &modules_dict = this->json().object().value(module_name).toObject();
+
+    this->m_reg_addr_map.clear();
+    for (const QString &k : modules_dict.keys())
+    {
+        const std::string &key = k.toStdString();
+
+        if (!k.startsWith("__"))
+            this->m_reg_addr_map[strtoull(key.c_str(), nullptr, 16)] = key;
+    }
+
+    if (this->chkboxAsInput->isChecked())
+        return;
+
+    this->clear_register_tables();
+
+    int count = this->make_register_tables(this->json(), module_name);
+
+    if (count > 0)
+    {
+        this->info_box("Load",
+            QString::asprintf("Loaded %d register tables for module:\n\n%s", count, module_name.toStdString().c_str()));
+    }
+    else
+    {
+        this->error_box("Load",
+            QString::asprintf("Failed to load register tables for module:\n\n%s", module_name.toStdString().c_str()));
+    }
+
+    this->grpboxView->setTitle(QString::asprintf("View: %d item(s) below", (count >= 0) ? count : 0));
 }
 
 void RegPanel::on_lstVendor_currentIndexChanged(int index)
@@ -195,45 +276,7 @@ void RegPanel::on_lstModule_currentIndexChanged(int index)
     }
 
     if (index < 0)
-    {
         this->error_box("Target Missing", "No readable configuration files or valid modules.");
-
-        return;
-    }
-
-    const QString &module_name = this->lstModule->currentText();
-    const QJsonObject &modules_dict = this->json().object().value(module_name).toObject();
-
-    this->m_reg_addr_map.clear();
-    for (const QString &k : modules_dict.keys())
-    {
-        const std::string &key = k.toStdString();
-
-        if (!k.startsWith("__"))
-            this->m_reg_addr_map[strtoull(key.c_str(), nullptr, 16)] = key;
-    }
-
-    if (!this->chkboxAsInput->isChecked())
-    {
-        int count;
-
-        this->clear_register_tables();
-
-        if ((count = this->make_register_tables(this->json(), module_name)) > 0)
-        {
-            this->info_box("Refresh",
-                QString::asprintf("Refreshed %d register tables for module:\n\n%s", count, module_name.toStdString().c_str()));
-
-            this->tab->setCurrentIndex(1);
-        }
-        else
-        {
-            this->error_box("Refresh",
-                QString::asprintf("Failed to refresh register tables for module:\n\n%s", module_name.toStdString().c_str()));
-        }
-
-        this->grpboxView->setTitle(QString::asprintf("View: %d item(s) below", (count >= 0) ? count : 0));
-    }
 }
 
 void RegPanel::on_lstDelimeter_currentIndexChanged(int index)
@@ -778,7 +821,7 @@ int RegPanel::make_register_tables(const QTextEdit &textbox, const QString &modu
     if (table_seq <= 1)
     {
         if (input.size() > 0)
-            this->error_box("Format Error", "Select the correct delimiter type, "
+            this->error_box("Conversion Error", "Select the correct delimiter type, "
                 "and write address-value pairs according to the placeholder text.");
         else
             this->error_box("Empty Contents", "Are you kidding?!");
@@ -937,5 +980,9 @@ int RegPanel::generate_register_array_items(const QString &module_name, const QT
  *      and generate_register_array_items().
  *  02. Remove resize_table_height() and all private widget classes
  *      to another new created header file and its source file.
+ *
+ * >>> 2024-10-04, Man Hung-Coeng <udc577@126.com>:
+ *  01. Support capturing window close event.
+ *  02. Support refreshing tables only when the tab page is switched.
  */
 

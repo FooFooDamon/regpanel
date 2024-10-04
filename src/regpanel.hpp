@@ -59,7 +59,11 @@ public:
         return m_json;
     }
 
+protected:
+    void closeEvent(QCloseEvent *event) override;
+
 private slots:
+    void on_tab_currentChanged(int index);
     void on_lstVendor_currentIndexChanged(int index);
     void on_lstChip_currentIndexChanged(int index);
     void on_lstFile_currentIndexChanged(int index);
@@ -85,6 +89,10 @@ private:
     std::vector<VendorItem> m_vendors;
     QJsonDocument m_json;
     std::map<uint64_t, std::string> m_reg_addr_map;
+    int m_prev_vendor_idx;
+    int m_prev_chip_idx;
+    int m_prev_file_idx;
+    int m_prev_module_idx;
 };
 
 #endif /* #ifndef __REGPANEL_HPP__ */
@@ -107,5 +115,10 @@ private:
  * >>> 2024-09-25, Man Hung-Coeng <udc577@126.com>:
  *  01. Add functions of generating register graphical tables
  *      and array item texts.
+ *
+ * >>> 2024-10-04, Man Hung-Coeng <udc577@126.com>:
+ *  01. Add closeEvent() for capturing window close event.
+ *  02. Add on_tab_currentChanged() and m_prev_*_idx to support
+ *      refreshing tables only when the tab page is switched.
  */
 
