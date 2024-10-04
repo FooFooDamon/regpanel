@@ -80,8 +80,12 @@ install: __prepare_parent_dirs
 	@if [ -e ${DESTDIR}/usr/local/etc/${TARGET} ]; then \
 		echo "*** Directory or link already exists: ${DESTDIR}/usr/local/etc/${TARGET}" >&2; \
 		echo "Check if it's installed by another project, and handle it manually before this installation." >&2; \
+		false; \
 	else \
-		set -x; ln -s $$(realpath $${PWD}/../etc) ${DESTDIR}/usr/local/etc/${TARGET}; \
+		set -x; ln -s $$(realpath $${PWD}/../etc) ${DESTDIR}/usr/local/etc/${TARGET}; set +x; \
+		printf "\nConfiguration files in this project are no longer updated,\n"; \
+		echo "please do one more step to install another project instead:"; \
+		printf "\nhttps://github.com/FooFooDamon/regpanel-conf\n\n"; \
 	fi
 
 uninstall: __prepare_parent_dirs
