@@ -3,6 +3,11 @@
 /*
  * Copyright (c) 2024 Man Hung-Coeng <udc577@126.com>
  * All rights reserved.
+ *
+ * V0.1.0:
+ * * 01. Support generating register graphical tables from configuration file.
+ * * 02. Support conversion between graphical tables and text box.
+ * * 03. Support associated updates among widgets of each graphical table.
  */
 
 #ifndef __VERSIONS_H__
@@ -22,7 +27,7 @@ extern "C" {
 #endif
 
 #ifndef MINOR_VER
-#define MINOR_VER                       0
+#define MINOR_VER                       1
 #endif
 
 #ifndef PATCH_VER
@@ -54,5 +59,8 @@ extern "C" {
  *
  * >>> 2024-09-09, Man Hung-Coeng <udc577@126.com>:
  *  01. Initial commit.
+ *
+ * >>> 2024-10-07, Man Hung-Coeng <udc577@126.com>:
+ *  01. Version 0.1.0.
  */
 
