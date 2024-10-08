@@ -57,9 +57,9 @@ int resize_table_height(QTableWidget *table, bool header_row_visible)
     return table_height;
 }
 
-/******************************** U64SpinBox begin ********************************/
+/******************************** BigSpinBox begin ********************************/
 
-QValidator::State U64SpinBox::validate(QString &input, int &pos) const/* override */
+QValidator::State BigSpinBox::validate(QString &input, int &pos) const/* override */
 {
     QString copy(input);
 
@@ -93,7 +93,7 @@ QValidator::State U64SpinBox::validate(QString &input, int &pos) const/* overrid
  *      inputting the expected value directly.
  *      To solve this bug, I have to reimplement one more function stepBy() after this one.
  */
-QString U64SpinBox::textFromValue(int val/* This value is truncated and thus not used. */) const/* override */
+QString BigSpinBox::textFromValue(int val/* This value is truncated and thus not used. */) const/* override */
 {
     const QString &text = this->lineEdit()->displayText();
     int base = this->displayIntegerBase();
@@ -108,7 +108,7 @@ QString U64SpinBox::textFromValue(int val/* This value is truncated and thus not
 /*
  * NOTE: This reimplemented function is for fixing a bug caused by textFromValue() above.
  */
-void U64SpinBox::stepBy(int steps)/* override */
+void BigSpinBox::stepBy(int steps)/* override */
 {
     if (0 == steps)
         return;
@@ -128,7 +128,7 @@ void U64SpinBox::stepBy(int steps)/* override */
         this->setValue((val - min >= absolute_val) ? (val - absolute_val) : min);
 }
 
-void U64SpinBox::setValue(uint64_t val)
+void BigSpinBox::setValue(uint64_t val)
 {
     if (/*val == m_value64 || */val < m_minimum64 || val > m_maximum64)
         return;
@@ -144,28 +144,26 @@ void U64SpinBox::setValue(uint64_t val)
     emit this->textChanged(this->lineEdit()->displayText());
 }
 
-/******************************** U64SpinBox end ********************************/
+/******************************** BigSpinBox end ********************************/
 
 /******************************** RegFullValuesRow begin ********************************/
 
 RegFullValuesRow::RegFullValuesRow(QWidget *parent, const QString &name_prefix,
     uint64_t default_value, uint64_t current_value)
     : QTableWidget(1, 5, parent)
-    , m_def_label("Default:  0x", this)
-    , m_def_value(this)
-    , m_curr_label("Current:  0x", this)
-    , m_curr_value(this)
+    , m_def_label("Default:  ", this)
+    , m_def_value(BigSpinBox::ShowStyle::HEX, this)
+    , m_curr_label("Current:  ", this)
+    , m_curr_value(BigSpinBox::ShowStyle::HEX, this)
 {
     m_def_label.setObjectName(name_prefix + "_full_values_def_label");
     m_def_value.setObjectName(name_prefix + "_full_values_def_val");
-    m_def_value.setDisplayIntegerBase(16);
     m_def_value.setRange(0, UINT64_MAX);
     m_def_value.setValue(default_value);
     m_def_value.setReadOnly(true);
 
     m_curr_label.setObjectName(name_prefix + "_full_values_curr_label");
     m_curr_value.setObjectName(name_prefix + "_full_values_curr_val");
-    m_curr_value.setDisplayIntegerBase(16);
     m_curr_value.setRange(0, UINT64_MAX);
     m_curr_value.setValue(current_value);
     m_curr_value.setReadOnly(true);
@@ -196,7 +194,8 @@ RegFullValuesRow::~RegFullValuesRow()
 /******************************** RegBitsDescCell begin ********************************/
 
 RegBitsDescCell::RegBitsDescCell(QWidget *parent, const QString &name_prefix, const QString &title, const QString &hint,
-    uint64_t value, uint64_t value_max, bool is_hex_value, const QJsonObject *enum_dict, bool is_readonly)
+    uint64_t value, uint64_t value_max, BigSpinBox::ShowStyle style,
+    const QJsonObject *enum_dict, bool is_readonly)
     : QTableWidget(2, 1, parent)
     , m_title(title, this)
     , m_digit(nullptr)
@@ -247,15 +246,12 @@ RegBitsDescCell::RegBitsDescCell(QWidget *parent, const QString &name_prefix, co
     }
     else
     {
-        m_digit = new U64SpinBox(this);
+        m_digit = new BigSpinBox(style, this);
         m_digit->setObjectName(name_prefix + "_desc_digit");
         //m_digit->setReadOnly(is_readonly);
-        m_digit->setDisplayIntegerBase(is_hex_value ? 16 : 10);
         m_digit->setRange(0, value_max);
         m_digit->setStyleSheet(is_readonly ? "background-color: darkgray; color: white;"
             : "background-color: " SOFT_GREEN_COLOR "; color: black;");
-        if (is_hex_value)
-            m_digit->setPrefix("0x");
     }
     this->sync(value);
 
@@ -351,13 +347,13 @@ void RegBitsDescCell::on_digitbox_textChanged(const QString &text)
 {
     auto *bits_table = dynamic_cast<QTableWidget *>(this->parentWidget()->parentWidget());
     int desc_column = bits_table->columnCount() - 1;
-    U64SpinBox *relevant_digit = nullptr;
+    BigSpinBox *relevant_digit = nullptr;
 
     for (int i = 0; i < bits_table->rowCount(); ++i)
     {
         if (bits_table->cellWidget(i, desc_column) == this)
         {
-            relevant_digit = dynamic_cast<U64SpinBox *>(bits_table->cellWidget(i, 2));
+            relevant_digit = dynamic_cast<BigSpinBox *>(bits_table->cellWidget(i, 2));
             break;
         }
     }
@@ -373,13 +369,13 @@ void RegBitsDescCell::on_enumbox_currentIndexChanged(int index)
 
     auto *bits_table = dynamic_cast<QTableWidget *>(this->parentWidget()->parentWidget());
     int desc_column = bits_table->columnCount() - 1;
-    U64SpinBox *relevant_digit = nullptr;
+    BigSpinBox *relevant_digit = nullptr;
 
     for (int i = 0; i < bits_table->rowCount(); ++i)
     {
         if (bits_table->cellWidget(i, desc_column) == this)
         {
-            relevant_digit = dynamic_cast<U64SpinBox *>(bits_table->cellWidget(i, 2));
+            relevant_digit = dynamic_cast<BigSpinBox *>(bits_table->cellWidget(i, 2));
             break;
         }
     }
@@ -441,6 +437,7 @@ std::pair<int8_t, int8_t> check_bits_range(const char *range)
 enum BitsItemDesc
 {
     BITS_ITEM_DESC_UNKNOWN,
+    BITS_ITEM_DESC_MISSING,
     BITS_ITEM_DESC_TODO,
     BITS_ITEM_DESC_RESERVED,
     BITS_ITEM_DESC_ENUM,
@@ -453,6 +450,9 @@ enum BitsItemDesc
 
 static BitsItemDesc check_bits_item_desc_type(const char *desc)
 {
+    if (0 == strcasecmp(desc, "missing"))
+        return BITS_ITEM_DESC_MISSING;
+
     if (0 == strcasecmp(desc, "TODO"))
         return BITS_ITEM_DESC_TODO;
 
@@ -507,7 +507,7 @@ RegBitsTable::RegBitsTable(QWidget *parent, const QString &name_prefix,
     this->setObjectName(name_prefix + "_bits");
     //this->setDragEnabled(false); // doesn't work
     this->setContentsMargins(0, 0, 0, 0);
-    this->setHorizontalHeaderLabels(header_texts << "Bits" << "Default" << "Current" << "Desc");
+    this->setHorizontalHeaderLabels(header_texts << "Bits" << "Default" << "Current" << "Description");
     this->horizontalHeader()->setStretchLastSection(true); // Auto-stretch for the final columns
     this->m_ranges.reserve(value_size);
     this->m_def_values.reserve(value_size);
@@ -608,18 +608,16 @@ RegBitsTable::RegBitsTable(QWidget *parent, const QString &name_prefix,
         this->m_ranges.back()->setObjectName(cell_name_prefix);
         this->setCellWidget(i, 0, this->m_ranges.back());
 
-        this->m_def_values.push_back(new U64SpinBox(this));
+        this->m_def_values.push_back(new BigSpinBox(BigSpinBox::ShowStyle::HEX, this));
         this->m_def_values.back()->setObjectName(cell_name_prefix + "_defval");
         this->m_def_values.back()->setReadOnly(true);
         this->m_def_values.back()->setStyleSheet("background-color: darkgray; color: white;");
-        this->m_def_values.back()->setDisplayIntegerBase(16);
-        this->m_def_values.back()->setPrefix("0x");
         this->m_def_values.back()->setRange(0, value_max);
         this->m_def_values.back()->setValue(
             extract_from_full_value(default_value, range_pair.first, range_pair.second));
         this->setCellWidget(i, 1, this->m_def_values.back());
 
-        this->m_curr_values.push_back(new U64SpinBox(this));
+        this->m_curr_values.push_back(new BigSpinBox(BigSpinBox::ShowStyle::HEX, this));
         this->m_curr_values.back()->setObjectName(cell_name_prefix + "_currval");
         if (is_readonly)
         {
@@ -630,8 +628,6 @@ RegBitsTable::RegBitsTable(QWidget *parent, const QString &name_prefix,
         {
             this->m_curr_values.back()->setStyleSheet("background-color: " SOFT_GREEN_COLOR "; color: black;");
         }
-        this->m_curr_values.back()->setDisplayIntegerBase(16);
-        this->m_curr_values.back()->setPrefix("0x");
         this->m_curr_values.back()->setRange(0, value_max);
         this->m_curr_values.back()->setValue(curr_value);
         this->setCellWidget(i, 2, this->m_curr_values.back());
@@ -640,6 +636,9 @@ RegBitsTable::RegBitsTable(QWidget *parent, const QString &name_prefix,
 
         if (desc_type > BITS_ITEM_DESC_RESERVED)
         {
+            BigSpinBox::ShowStyle show_style = (BITS_ITEM_DESC_DECIMAL == desc_type) ? BigSpinBox::ShowStyle::DECIMAL
+                : ((BITS_ITEM_DESC_UDECIMAL == desc_type) ? BigSpinBox::ShowStyle::UDECIMAL
+                    : BigSpinBox::ShowStyle::HEX);
             bool enumerable = (desc_type >= BITS_ITEM_DESC_ENUM && desc_type <= BITS_ITEM_DESC_INVBOOL);
             QJsonObject bool_dict({ { "0", "false" }, { "1", "true" } });
             QJsonObject invbool_dict({ { "0", "true" }, { "1", "false" } });
@@ -649,8 +648,7 @@ RegBitsTable::RegBitsTable(QWidget *parent, const QString &name_prefix,
             this->m_desc_items.push_back(
                 new RegBitsDescCell(this, cell_name_prefix, attr_arr[3].toString(),
                     (attr_size > 4) ? attr_arr[4].toString() : "",
-                    curr_value, value_max, /* is_hex_value = */(BITS_ITEM_DESC_HEX == desc_type),
-                    (enumerable ? &enum_dict : nullptr), is_readonly)
+                    curr_value, value_max, show_style, (enumerable ? &enum_dict : nullptr), is_readonly)
             );
             this->setRowHeight(i, resize_table_height(
                 dynamic_cast<RegBitsDescCell *>(this->m_desc_items.back()), /* header_row_visible = */false));
@@ -679,13 +677,13 @@ RegBitsTable::~RegBitsTable()
     {
         delete i;
     }
-    std::vector<U64SpinBox *>().swap(m_def_values);
+    std::vector<BigSpinBox *>().swap(m_def_values);
 
     for (auto &i : m_curr_values)
     {
         delete i;
     }
-    std::vector<U64SpinBox *>().swap(m_curr_values);
+    std::vector<BigSpinBox *>().swap(m_curr_values);
 
     for (auto &i : m_desc_items)
     {
@@ -696,7 +694,7 @@ RegBitsTable::~RegBitsTable()
 
 void RegBitsTable::on_currval_textChanged(const QString &text)
 {
-    auto *changed_bits = dynamic_cast<U64SpinBox *>(this->sender()/* QObject::sender() */);
+    auto *changed_bits = dynamic_cast<BigSpinBox *>(this->sender()/* QObject::sender() */);
     std::pair<int8_t, int8_t> bits_range_pair;
     RegBitsDescCell *desc_cell = nullptr;
     QLabel *desc_label = nullptr;
@@ -755,5 +753,11 @@ void RegBitsTable::on_currval_textChanged(const QString &text)
  *
  * >>> 2024-10-01, Man Hung-Coeng <udc577@126.com>:
  *  01. Initial commit.
+ *
+ * >>> 2024-10-08, Man Hung-Coeng <udc577@126.com>:
+ *  01. Rename class U64SpinBox to BigSpinBox and improve it a little
+ *      (not supporting signed decimal yet).
+ *  02. Add a new description type "missing" to support the case that
+ *      the official doesn't provide any info.
  */
 

@@ -30,7 +30,7 @@ class QComboBox;
 
 int resize_table_height(QTableWidget *table, bool header_row_visible);
 
-class U64SpinBox : public QSpinBox
+class BigSpinBox : public QSpinBox
 {
     Q_OBJECT
 
@@ -39,15 +39,43 @@ class U64SpinBox : public QSpinBox
     Q_PROPERTY(uint64_t maximum READ maximum WRITE setMaximum)
 
 private:
-    Q_DISABLE_COPY_MOVE(U64SpinBox);
+    Q_DISABLE_COPY_MOVE(BigSpinBox);
 
 public:
-    U64SpinBox(QWidget *parent = nullptr) : QSpinBox(parent), m_value64(0), m_minimum64(0), m_maximum64(99) {}
+    enum ShowStyle
+    {
+        HEX,
+        UDECIMAL,
+        DECIMAL,
+    };
+
+    explicit BigSpinBox(enum ShowStyle style = HEX, QWidget *parent = nullptr)
+        : QSpinBox(parent)
+        , m_show_style(style)
+        , m_value64(0)
+        , m_minimum64(0)
+        , m_maximum64(99)
+    {
+        if (HEX == style)
+        {
+            this->setDisplayIntegerBase(16);
+            this->setPrefix("0x");
+        }
+        else
+        {
+            this->setDisplayIntegerBase(10);
+        }
+    }
 
 public:
     inline std::string name(void) const
     {
         return this->objectName().toStdString();
+    }
+
+    inline enum ShowStyle show_style(void) const
+    {
+        return m_show_style;
     }
 
     inline uint64_t value(void) const
@@ -60,7 +88,7 @@ public:
         return m_minimum64;
     }
 
-    inline void setMinimum(uint64_t min)
+    inline void setMinimum(uint64_t min) // FIXME: Support signed type.
     {
         if (min <= m_maximum64)
         {
@@ -77,7 +105,7 @@ public:
         return m_maximum64;
     }
 
-    inline void setMaximum(uint64_t max)
+    inline void setMaximum(uint64_t max) // FIXME: Support signed type.
     {
         if (max >= m_minimum64)
         {
@@ -87,7 +115,7 @@ public:
         }
     }
 
-    inline void setRange(uint64_t min, uint64_t max)
+    inline void setRange(uint64_t min, uint64_t max) // FIXME: Support signed type.
     {
         if (max >= min)
         {
@@ -111,6 +139,7 @@ Q_SIGNALS:
   void valueChanged(uint64_t); // optional, only needed if Q_PROPERTY(... setValue ..) above contains NOTIFY
 
 private:
+    enum ShowStyle m_show_style;
     uint64_t m_value64;
     uint64_t m_minimum64;
     uint64_t m_maximum64;
@@ -140,9 +169,9 @@ public:
 
 private:
     QLabel m_def_label;
-    U64SpinBox m_def_value;
+    BigSpinBox m_def_value;
     QLabel m_curr_label;
-    U64SpinBox m_curr_value;
+    BigSpinBox m_curr_value;
 };
 
 class RegBitsDescCell : public QTableWidget
@@ -156,7 +185,8 @@ public:
     RegBitsDescCell() = delete;
 
     RegBitsDescCell(QWidget *parent, const QString &name_prefix, const QString &title, const QString &hint,
-        uint64_t value, uint64_t value_max, bool is_hex_value, const QJsonObject *enum_dict, bool is_readonly);
+        uint64_t value, uint64_t value_max, BigSpinBox::ShowStyle style,
+        const QJsonObject *enum_dict, bool is_readonly);
 
     RegBitsDescCell(RegBitsDescCell &&src);
 
@@ -171,7 +201,7 @@ private slots:
 
 private:
     QLineEdit m_title;
-    U64SpinBox *m_digit;
+    BigSpinBox *m_digit;
     QComboBox *m_enum;
     std::vector<uint64_t> m_enum_values;
     uint16_t m_badvalue_index;
@@ -199,8 +229,8 @@ private slots:
 
 private:
     std::vector<QLabel *> m_ranges;
-    std::vector<U64SpinBox *> m_def_values;
-    std::vector<U64SpinBox *> m_curr_values;
+    std::vector<BigSpinBox *> m_def_values;
+    std::vector<BigSpinBox *> m_curr_values;
     std::vector<QWidget *> m_desc_items;
 };
 
@@ -213,5 +243,9 @@ private:
  *
  * >>> 2024-10-01, Man Hung-Coeng <udc577@126.com>:
  *  01. Initial commit.
+ *
+ * >>> 2024-10-08, Man Hung-Coeng <udc577@126.com>:
+ *  01. Rename class U64SpinBox to BigSpinBox and improve it a little
+ *      (not supporting signed decimal yet).
  */
 
