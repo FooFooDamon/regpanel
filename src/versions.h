@@ -8,6 +8,12 @@
  * * 01. Support generating register graphical tables from configuration file.
  * * 02. Support conversion between graphical tables and text box.
  * * 03. Support associated updates among widgets of each graphical table.
+ *
+ * V0.1.1:
+ * * 01. Add a new description type "missing" to support the case that
+ * *     the official doesn't provide any info.
+ * * 02. Fix the error of getting default value for items
+ *       that reference configurations of other registers.
  */
 
 #ifndef __VERSIONS_H__
@@ -62,5 +68,8 @@ extern "C" {
  *
  * >>> 2024-10-07, Man Hung-Coeng <udc577@126.com>:
  *  01. Version 0.1.0.
+ *
+ * >>> 2024-10-09, Man Hung-Coeng <udc577@126.com>:
+ *  01. Version 0.1.1.
  */
 
