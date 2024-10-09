@@ -607,12 +607,11 @@ int RegPanel::make_register_tables(const QJsonDocument &json, const QString &mod
         const QJsonArray &orig_val_arr = orig_value.toArray();
         QString dest_key = find_referenced_register_if_any(modules_dict, orig_key, orig_val_arr);
         QString name_prefix = QString::asprintf("reg[%d]", i);
+        uint64_t default_value = get_default_value(modules_dict, orig_key);
         QTableWidget *reg_table;
 
         if (dest_key.isEmpty())
         {
-            uint64_t default_value = get_default_value(modules_dict, orig_key);
-
             reg_table = this->make_register_table(scroll_widget, name_prefix, orig_key, orig_val_arr,
                 default_value, default_value);
         }
@@ -621,12 +620,6 @@ int RegPanel::make_register_tables(const QJsonDocument &json, const QString &mod
             qtCDebugV(::, "Redirecting reg[%s] to reg[%s] ...\n",
                 orig_key.toStdString().c_str(), dest_key.toStdString().c_str());
 
-            if (!modules_dict.contains(dest_key))
-            {
-                qtCErrV(::, "[%d] No such a register: %s\n", i, dest_key.toStdString().c_str());
-                continue;
-            }
-
             const QJsonValue &dest_value = modules_dict.value(dest_key);
 
             if (!dest_value.isArray())
@@ -634,8 +627,6 @@ int RegPanel::make_register_tables(const QJsonDocument &json, const QString &mod
                 qtCErrV(::, "[%d] Value of register[%s] is not an array!\n", i, dest_key.toStdString().c_str());
                 continue;
             }
-
-            uint64_t default_value = get_default_value(modules_dict, dest_key);
 
             reg_table = this->make_register_table(scroll_widget, name_prefix, orig_key, dest_value.toArray(),
                 default_value, default_value);
@@ -782,23 +773,16 @@ int RegPanel::make_register_tables(const QTextEdit &textbox, const QString &modu
         const QJsonArray &orig_val_arr = orig_value.toArray();
         QString dest_key = find_referenced_register_if_any(modules_dict, orig_key, orig_val_arr);
         QString name_prefix = QString::asprintf("reg[%d]", table_seq);
+        uint64_t default_value = get_default_value(modules_dict, orig_key);
         QTableWidget *reg_table;
 
         if (dest_key.isEmpty())
         {
-            uint64_t default_value = get_default_value(modules_dict, orig_key);
-
             reg_table = this->make_register_table(scroll_widget, name_prefix, orig_key, orig_val_arr,
                 default_value, value);
         }
         else
         {
-            if (!modules_dict.contains(dest_key))
-            {
-                qtCErrV(::, "[%d] No such a register: %s\n", table_seq, dest_key.toStdString().c_str());
-                continue;
-            }
-
             const QJsonValue &dest_value = modules_dict.value(dest_key);
 
             if (!dest_value.isArray())
@@ -806,8 +790,6 @@ int RegPanel::make_register_tables(const QTextEdit &textbox, const QString &modu
                 qtCErrV(::, "[%d] Value of register[%s] is not an array!\n", table_seq, dest_key.toStdString().c_str());
                 continue;
             }
-
-            uint64_t default_value = get_default_value(modules_dict, dest_key);
 
             reg_table = this->make_register_table(scroll_widget, name_prefix, dest_key, dest_value.toArray(),
                 default_value, value);
@@ -984,5 +966,9 @@ int RegPanel::generate_register_array_items(const QString &module_name, const QT
  * >>> 2024-10-04, Man Hung-Coeng <udc577@126.com>:
  *  01. Support capturing window close event.
  *  02. Support refreshing tables only when the tab page is switched.
+ *
+ * >>> 2024-10-09, Man Hung-Coeng <udc577@126.com>:
+ *  01. Fix the error of getting default value for items
+ *      that reference configurations of other registers.
  */
 
