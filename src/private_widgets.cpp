@@ -18,6 +18,8 @@
 
 #include "private_widgets.hpp"
 
+#include <set>
+
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QHeaderView>
 #include <QJsonObject>
@@ -222,11 +224,15 @@ RegBitsDescCell::RegBitsDescCell(QWidget *parent, const QString &name_prefix, co
     if (enum_dict)
     {
         int index = 0;
+        std::vector<uint16_t> bad_indexes;
+        uint64_t bad_key = 0xffff;
+        std::set<uint64_t> key_digits;
 
         m_enum = new QComboBox(this);
         m_enum->setObjectName(name_prefix + "_desc_enum");
         //m_enum->setDisabled(is_readonly);
         m_enum_values.reserve(enum_dict->size());
+        bad_indexes.reserve(enum_dict->size());
         for (QJsonObject::const_iterator iter = enum_dict->begin(); enum_dict->end() != iter; ++iter)
         {
             const std::string &key_str = iter.key().toStdString();
@@ -234,16 +240,35 @@ RegBitsDescCell::RegBitsDescCell(QWidget *parent, const QString &name_prefix, co
             uint64_t key_digit = strtoull(key_str.c_str(), &ptr, 16);
 
             if (0 == key_digit && key_str.c_str() == ptr)
+            {
                 m_badvalue_index = index++;
+                bad_indexes.push_back(m_badvalue_index);
+            }
+            else
+            {
+                key_digits.insert(key_digit);
+            }
 
             m_enum_values.push_back(key_digit);
 
             m_enum->addItem(iter.value().toString("Invalid"));
         }
+        for (uint16_t i = 0; i < (uint16_t)0xffff; ++i)
+        {
+            if (key_digits.end() == key_digits.find(i))
+            {
+                bad_key = i;
+                break;
+            }
+        }
+        for (auto bad_index : bad_indexes)
+        {
+            m_enum_values[bad_index] = bad_key;
+        }
 
         this->connect(m_enum, SIGNAL(currentIndexChanged(int)),
             this, SLOT(on_enumbox_currentIndexChanged(int)));
-    }
+    } // if (enum_dict)
     else
     {
         m_digit = new BigSpinBox(style, this);
@@ -759,5 +784,9 @@ void RegBitsTable::on_currval_textChanged(const QString &text)
  *      (not supporting signed decimal yet).
  *  02. Add a new description type "missing" to support the case that
  *      the official doesn't provide any info.
+ *
+ * >>> 2024-10-15, Man Hung-Coeng <udc577@126.com>:
+ *  01. Fix the error of synchronizing the "Others" option
+ *      of Description pull-down list.
  */
 
