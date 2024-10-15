@@ -14,6 +14,10 @@
  * *     the official doesn't provide any info.
  * * 02. Fix the error of getting default value for items
  *       that reference configurations of other registers.
+ *
+ * V0.1.2:
+ * * 01. Fix the error of synchronizing the "Others" option
+ *       of Description pull-down list.
  */
 
 #ifndef __VERSIONS_H__
@@ -37,7 +41,7 @@ extern "C" {
 #endif
 
 #ifndef PATCH_VER
-#define PATCH_VER                       1
+#define PATCH_VER                       2
 #endif
 
 #ifndef PRODUCT_VERSION
@@ -71,5 +75,8 @@ extern "C" {
  *
  * >>> 2024-10-09, Man Hung-Coeng <udc577@126.com>:
  *  01. Version 0.1.1.
+ *
+ * >>> 2024-10-15, Man Hung-Coeng <udc577@126.com>:
+ *  01. Version 0.1.2.
  */
 
