@@ -791,7 +791,7 @@ int RegPanel::make_register_tables(const QTextEdit &textbox, const QString &modu
                 continue;
             }
 
-            reg_table = this->make_register_table(scroll_widget, name_prefix, dest_key, dest_value.toArray(),
+            reg_table = this->make_register_table(scroll_widget, name_prefix, orig_key, dest_value.toArray(),
                 default_value, value);
         }
 
@@ -969,6 +969,10 @@ int RegPanel::generate_register_array_items(const QString &module_name, const QT
  *
  * >>> 2024-10-09, Man Hung-Coeng <udc577@126.com>:
  *  01. Fix the error of getting default value for items
+ *      that reference configurations of other registers.
+ *
+ * >>> 2024-11-08, Man Hung-Coeng <udc577@126.com>:
+ *  01. Fix the error of displaying table title for items
  *      that reference configurations of other registers.
  */
 
