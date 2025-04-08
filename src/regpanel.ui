@@ -4386,7 +4386,7 @@ Or (when using Square Brackets):
     </palette>
    </property>
    <property name="text">
-    <string>Copyright (c) 2024 Man Hung-Coeng &lt;udc577@126.com&gt; | Licensed under the Apache License, Version 2.0</string>
+    <string>Copyright (c) 2024-2025 Man Hung-Coeng &lt;udc577@126.com&gt; | Licensed under the Apache License, Version 2.0</string>
    </property>
   </widget>
   <widget class="QLabel" name="lblPoweredBy">
