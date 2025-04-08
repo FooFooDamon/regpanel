@@ -46,7 +46,7 @@ extern "C" {
 #endif
 
 #ifndef PATCH_VER
-#define PATCH_VER                       2
+#define PATCH_VER                       3
 #endif
 
 #ifndef PRODUCT_VERSION
