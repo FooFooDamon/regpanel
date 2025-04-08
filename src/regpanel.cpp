@@ -1,7 +1,7 @@
 /*
  * Register Panel GUI class.
  *
- * Copyright (c) 2024 Man Hung-Coeng <udc577@126.com>
+ * Copyright (c) 2024-2025 Man Hung-Coeng <udc577@126.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -600,7 +600,7 @@ int RegPanel::make_register_tables(const QJsonDocument &json, const QString &mod
 
         if (!orig_value.isArray())
         {
-            qtCErrV(::, "[%d] Value of register[%s] is not an array!\n", i, orig_key.toStdString().c_str());
+            qtCErrV(::, "[%d] Value of register[%s] is not an array!", i, orig_key.toStdString().c_str());
             continue;
         }
 
@@ -617,14 +617,14 @@ int RegPanel::make_register_tables(const QJsonDocument &json, const QString &mod
         }
         else
         {
-            qtCDebugV(::, "Redirecting reg[%s] to reg[%s] ...\n",
+            qtCDebugV(::, "Redirecting reg[%s] to reg[%s] ...",
                 orig_key.toStdString().c_str(), dest_key.toStdString().c_str());
 
             const QJsonValue &dest_value = modules_dict.value(dest_key);
 
             if (!dest_value.isArray())
             {
-                qtCErrV(::, "[%d] Value of register[%s] is not an array!\n", i, dest_key.toStdString().c_str());
+                qtCErrV(::, "[%d] Value of register[%s] is not an array!", i, dest_key.toStdString().c_str());
                 continue;
             }
 
@@ -757,7 +757,7 @@ int RegPanel::make_register_tables(const QTextEdit &textbox, const QString &modu
 
         if (this->m_reg_addr_map.end() == orig_key_iter)
         {
-            qtCErrV(::, "[%d] No such a register with address = 0x%lx\n", table_seq, addr);
+            qtCErrV(::, "[%d] No such a register with address = 0x%lx", table_seq, addr);
             continue;
         }
 
@@ -766,7 +766,7 @@ int RegPanel::make_register_tables(const QTextEdit &textbox, const QString &modu
 
         if (!orig_value.isArray())
         {
-            qtCErrV(::, "[%d] Value of register[%s] is not an array!\n", table_seq, orig_key.toStdString().c_str());
+            qtCErrV(::, "[%d] Value of register[%s] is not an array!", table_seq, orig_key.toStdString().c_str());
             continue;
         }
 
@@ -787,7 +787,7 @@ int RegPanel::make_register_tables(const QTextEdit &textbox, const QString &modu
 
             if (!dest_value.isArray())
             {
-                qtCErrV(::, "[%d] Value of register[%s] is not an array!\n", table_seq, dest_key.toStdString().c_str());
+                qtCErrV(::, "[%d] Value of register[%s] is not an array!", table_seq, dest_key.toStdString().c_str());
                 continue;
             }
 
@@ -833,17 +833,17 @@ void RegPanel::clear_register_tables(void)
         auto *full_values_cell = dynamic_cast<RegFullValuesRow *>(outer_table->cellWidget(1, 0));
         auto *bits_table_cell = dynamic_cast<RegBitsTable *>(outer_table->cellWidget(2, 0));
 
-        qtCDebugV(::, "\tDeleting: %s (%s)\n", title_cell->objectName().toStdString().c_str(),
+        qtCDebugV(::, "\tDeleting: %s (%s)", title_cell->objectName().toStdString().c_str(),
             title_cell->text().toStdString().c_str());
         delete title_cell;
 
-        if (print_flag) qtCDebugV(::, "\tDeleting: %s\n", full_values_cell->objectName().toStdString().c_str());
+        if (print_flag) qtCDebugV(::, "\tDeleting: %s", full_values_cell->objectName().toStdString().c_str());
         delete full_values_cell;
 
-        if (print_flag) qtCDebugV(::, "\tDeleting: %s\n", bits_table_cell->objectName().toStdString().c_str());
+        if (print_flag) qtCDebugV(::, "\tDeleting: %s", bits_table_cell->objectName().toStdString().c_str());
         delete bits_table_cell;
 
-        qtCDebugV(::, "Deleting: %s\n", iname.c_str());
+        qtCDebugV(::, "Deleting: %s", iname.c_str());
         vlayout->removeWidget(outer_table);
         //outer_table->clear();
         //outer_table->setRowCount(0);
@@ -974,5 +974,8 @@ int RegPanel::generate_register_array_items(const QString &module_name, const QT
  * >>> 2024-11-08, Man Hung-Coeng <udc577@126.com>:
  *  01. Fix the error of displaying table title for items
  *      that reference configurations of other registers.
+ *
+ * >>> 2025-04-08, Man Hung-Coeng <udc577@126.com>:
+ *  01. Remove the trailing newline character from each log message.
  */
 

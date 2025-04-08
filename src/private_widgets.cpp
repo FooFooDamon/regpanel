@@ -1,7 +1,7 @@
 /*
  * Private widget classes of this project.
  *
- * Copyright (c) 2024 Man Hung-Coeng <udc577@126.com>
+ * Copyright (c) 2024-2025 Man Hung-Coeng <udc577@126.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,20 +37,20 @@ int resize_table_height(QTableWidget *table, bool header_row_visible)
     {
         h = table->horizontalHeader()->height();
         table_height += h;
-        //qtDebugV(::, "%s: table_height += %d\n", table_name.c_str(), h);
+        //qtDebugV(::, "%s: table_height += %d", table_name.c_str(), h);
     }
 
     for (int r = 0; r < table->rowCount(); ++r)
     {
         h = table->rowHeight(r);
         table_height += h;
-        //qtDebugV(::, "%s: table_height += %d\n", table_name.c_str(), h);
+        //qtDebugV(::, "%s: table_height += %d", table_name.c_str(), h);
     }
 
-    //qtDebugV("Before setting: min/max height = %d/%d\n", table->minimumHeight(), table->maximumHeight());
+    //qtDebugV("Before setting: min/max height = %d/%d", table->minimumHeight(), table->maximumHeight());
     table->setMinimumHeight(table_height);
     table->setMaximumHeight(table_height);
-    //qtDebugV("After setting, min/max height = %d/%d\n", table->minimumHeight(), table->maximumHeight());
+    //qtDebugV("After setting, min/max height = %d/%d", table->minimumHeight(), table->maximumHeight());
     table->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
     //table->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     table->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
@@ -65,7 +65,7 @@ QValidator::State BigSpinBox::validate(QString &input, int &pos) const/* overrid
 {
     QString copy(input);
 
-    //qtCDebugV(::, "input: %s, pos: %d\n", copy.toStdString().c_str(), pos);
+    //qtCDebugV(::, "input: %s, pos: %d", copy.toStdString().c_str(), pos);
     if (copy.startsWith("0x"))
         copy.remove(0, 2);
 
@@ -101,7 +101,7 @@ QString BigSpinBox::textFromValue(int val/* This value is truncated and thus not
     int base = this->displayIntegerBase();
     uint64_t value = text.toULongLong(nullptr, base); // Converted from instant text instead of using the old m_value64.
 
-    qtCDebugV(::, "%s: base = %d, m_value64 = 0x%lx, text = %s, result = 0x%lx\n",
+    qtCDebugV(::, "%s: base = %d, m_value64 = 0x%lx, text = %s, result = 0x%lx",
         this->name().c_str(), base, m_value64, text.toStdString().c_str(), value);
 
     return QString::number(value, base);
@@ -139,7 +139,7 @@ void BigSpinBox::setValue(uint64_t val)
 
     m_value64 = val;
     this->lineEdit()->setText(text);
-    qtCDebugV(::, "%s: val = 0x%lx, text = %s, displayText() = %s\n",
+    qtCDebugV(::, "%s: val = 0x%lx, text = %s, displayText() = %s",
         this->name().c_str(), val, text.toStdString().c_str(), this->lineEdit()->displayText().toStdString().c_str());
 
     //emit this->valueChanged(val);
@@ -544,7 +544,7 @@ RegBitsTable::RegBitsTable(QWidget *parent, const QString &name_prefix,
 
         if (!item.isObject())
         {
-            qtCErrV(::, "reg[%s]: item[%d] is not a dictionary/map!\n", dict_key, i);
+            qtCErrV(::, "reg[%s]: item[%d] is not a dictionary/map!", dict_key, i);
             continue;
         }
 
@@ -552,7 +552,7 @@ RegBitsTable::RegBitsTable(QWidget *parent, const QString &name_prefix,
 
         if (!dict.contains("attr"))
         {
-            qtCErrV(::, "reg[%s]: item[%d] does not contain an \"attr\" property!\n", dict_key, i);
+            qtCErrV(::, "reg[%s]: item[%d] does not contain an \"attr\" property!", dict_key, i);
             continue;
         }
 
@@ -560,7 +560,7 @@ RegBitsTable::RegBitsTable(QWidget *parent, const QString &name_prefix,
 
         if (!attr_val.isArray())
         {
-            qtCErrV(::, "reg[%s]: item[%d]: Value of \"attr\" property is not an array!\n", dict_key, i);
+            qtCErrV(::, "reg[%s]: item[%d]: Value of \"attr\" property is not an array!", dict_key, i);
             continue;
         }
 
@@ -569,7 +569,7 @@ RegBitsTable::RegBitsTable(QWidget *parent, const QString &name_prefix,
 
         if (attr_size < 3)
         {
-            qtCErrV(::, "reg[%s]: item[%d].attr: Too few elements, just %d!\n", dict_key, i, attr_size);
+            qtCErrV(::, "reg[%s]: item[%d].attr: Too few elements, just %d!", dict_key, i, attr_size);
             continue;
         }
 
@@ -578,7 +578,7 @@ RegBitsTable::RegBitsTable(QWidget *parent, const QString &name_prefix,
 
         if (range_pair.first < 0 || range_pair.second < 0)
         {
-            qtCErrV(::, "reg[%s]: item[%d].attr: Invalid bits range: %s\n", dict_key, i, bits_range.c_str());
+            qtCErrV(::, "reg[%s]: item[%d].attr: Invalid bits range: %s", dict_key, i, bits_range.c_str());
             continue;
         }
 
@@ -587,7 +587,7 @@ RegBitsTable::RegBitsTable(QWidget *parent, const QString &name_prefix,
 
         if (BITS_ITEM_DESC_UNKNOWN == desc_type)
         {
-            qtCErrV(::, "reg[%s]: item[%d].attr[%s]: Invalid description type: %s\n",
+            qtCErrV(::, "reg[%s]: item[%d].attr[%s]: Invalid description type: %s",
                 dict_key, i, bits_range.c_str(), desc_type_str.c_str());
             continue;
         }
@@ -595,7 +595,7 @@ RegBitsTable::RegBitsTable(QWidget *parent, const QString &name_prefix,
         {
             if (!dict.contains("desc"))
             {
-                qtCErrV(::, "reg[%s]: item[%d] does not contain an \"desc\" property!\n", dict_key, i);
+                qtCErrV(::, "reg[%s]: item[%d] does not contain an \"desc\" property!", dict_key, i);
                 continue;
             }
 
@@ -603,19 +603,19 @@ RegBitsTable::RegBitsTable(QWidget *parent, const QString &name_prefix,
 
             if (!desc_val.isObject())
             {
-                qtCErrV(::, "reg[%s]: item[%d]: Value of \"desc\" property is not a dictionary/map!\n", dict_key, i);
+                qtCErrV(::, "reg[%s]: item[%d]: Value of \"desc\" property is not a dictionary/map!", dict_key, i);
                 continue;
             }
 
             if (desc_val.toObject().count() <= 0)
             {
-                qtCErrV(::, "reg[%s]: item[%d]: \"desc\" dictionary/map is empty!\n", dict_key, i);
+                qtCErrV(::, "reg[%s]: item[%d]: \"desc\" dictionary/map is empty!", dict_key, i);
                 continue;
             }
         }
         else if (desc_type > BITS_ITEM_DESC_RESERVED && attr_size < 4)
         {
-            qtCErrV(::, "reg[%s]: item[%d].attr[%s]: Missing title for description type[%s]\n",
+            qtCErrV(::, "reg[%s]: item[%d].attr[%s]: Missing title for description type[%s]",
                 dict_key, i, bits_range.c_str(), desc_type_str.c_str());
             continue;
         }
@@ -743,7 +743,7 @@ void RegBitsTable::on_currval_textChanged(const QString &text)
 
     if (nullptr == desc_cell && nullptr == desc_label)
     {
-        qtCErrV(::, "Can not match a desc widget with emitter: %s\n", bits_obj_name.c_str());
+        qtCErrV(::, "Can not match a desc widget with emitter: %s", bits_obj_name.c_str());
 
         return;
     }
@@ -788,5 +788,8 @@ void RegBitsTable::on_currval_textChanged(const QString &text)
  * >>> 2024-10-15, Man Hung-Coeng <udc577@126.com>:
  *  01. Fix the error of synchronizing the "Others" option
  *      of Description pull-down list.
+ *
+ * >>> 2025-04-08, Man Hung-Coeng <udc577@126.com>:
+ *  01. Remove the trailing newline character from each log message.
  */
 
