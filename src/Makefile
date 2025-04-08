@@ -109,3 +109,5 @@ dependencies:
 		[ -s $${i}/[Mm]akefile ] && ${MAKE} $(filter all prepare, ${MAKECMDGOALS}) -C $${i} || true; \
 	done
 
+-include rsync.priv.mk
+
