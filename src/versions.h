@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
- * Copyright (c) 2024 Man Hung-Coeng <udc577@126.com>
+ * Copyright (c) 2024-2025 Man Hung-Coeng <udc577@126.com>
  * All rights reserved.
  *
  * V0.1.0:
@@ -18,6 +18,11 @@
  * V0.1.2:
  * * 01. Fix the error of synchronizing the "Others" option
  *       of Description pull-down list.
+ *
+ * V0.1.3:
+ * * 01. Fix the error of displaying table title for items
+ *       that reference configurations of other registers.
+ * * 02. Add Qt 6 compatibility.
  */
 
 #ifndef __VERSIONS_H__
@@ -78,5 +83,8 @@ extern "C" {
  *
  * >>> 2024-10-15, Man Hung-Coeng <udc577@126.com>:
  *  01. Version 0.1.2.
+ *
+ * >>> 2025-04-08, Man Hung-Coeng <udc577@126.com>:
+ *  01. Version 0.1.3.
  */
 
