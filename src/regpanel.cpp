@@ -20,12 +20,12 @@
 
 #include "versions.h"
 
-#include <QtCore/QDir>
-#include <QtGui/QtGui>
-#include <QtWidgets/QLabel>
-#include <QtWidgets/QMessageBox>
-#include <QtWidgets/QTableWidget>
-#include <QtWidgets/QHeaderView>
+#include <QDir>
+#include <QtGui>
+#include <QLabel>
+#include <QMessageBox>
+#include <QTableWidget>
+#include <QHeaderView>
 
 #include "qt_print.hpp"
 #include "private_widgets.hpp"
@@ -35,8 +35,6 @@
 #else
 #define ABORT(errcode)                          exit(errcode)
 #endif
-
-const QTextCodec *G_TEXT_CODEC = QTextCodec::codecForName("UTF8"/*"GB2312"*/);
 
 RegPanel::RegPanel(const char *config_dir, QWidget *parent)
     : QDialog(parent)
@@ -977,5 +975,7 @@ int RegPanel::generate_register_array_items(const QString &module_name, const QT
  *
  * >>> 2025-04-08, Man Hung-Coeng <udc577@126.com>:
  *  01. Remove the trailing newline character from each log message.
+ *  02. Remove module prefix of each Qt header files to improve robustness.
+ *  03. Remove the unused QTextCodec variable.
  */
 

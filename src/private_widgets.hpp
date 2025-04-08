@@ -1,7 +1,7 @@
 /*
  * Private widget classes of this project.
  *
- * Copyright (c) 2024 Man Hung-Coeng <udc577@126.com>
+ * Copyright (c) 2024-2025 Man Hung-Coeng <udc577@126.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@
 #ifndef __PRIVATE_WIDGETS_HPP__
 #define __PRIVATE_WIDGETS_HPP__
 
-#include <QtWidgets/QSpinBox>
-#include <QtWidgets/QTableWidget>
-#include <QtWidgets/QLineEdit>
-#include <QtWidgets/QLabel>
+#include <QSpinBox>
+#include <QTableWidget>
+#include <QLineEdit>
+#include <QLabel>
 
 class QComboBox;
 
@@ -247,5 +247,8 @@ private:
  * >>> 2024-10-08, Man Hung-Coeng <udc577@126.com>:
  *  01. Rename class U64SpinBox to BigSpinBox and improve it a little
  *      (not supporting signed decimal yet).
+ *
+ * >>> 2025-04-08, Man Hung-Coeng <udc577@126.com>:
+ *  01. Remove module prefix of each Qt header files to improve robustness.
  */
 

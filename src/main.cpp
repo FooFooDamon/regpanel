@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Man Hung-Coeng <udc577@126.com>
+ * Copyright (c) 2024-2025 Man Hung-Coeng <udc577@126.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,15 +26,15 @@
 #include <vector>
 #include <map>
 #include <iostream>
-#include <QtWidgets/QApplication>
-#include <QtWidgets/QDialog>
+#include <QApplication>
+#include <QDialog>
 
 #include "qt_print.hpp"
 #include "regpanel.hpp"
 
 // Must be coincident with the copyright info at the beginning of this file.
 #ifndef COPYRIGHT_STRING
-#define COPYRIGHT_STRING                "Copyright (c) 2024 Man Hung-Coeng <udc577@126.com>\n" \
+#define COPYRIGHT_STRING                "Copyright (c) 2024-2025 Man Hung-Coeng <udc577@126.com>\n" \
                                         "Licensed under the Apache License, Version 2.0"
 #endif
 
@@ -471,5 +471,8 @@ lbl_unload_conf:
  *
  * >>> 2024-09-18, Man Hung-Coeng <udc577@126.com>:
  *  01. Support dynamic level console logging.
+ *
+ * >>> 2025-04-08, Man Hung-Coeng <udc577@126.com>:
+ *  01. Remove module prefix of each Qt header files to improve robustness.
  */
 

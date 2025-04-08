@@ -20,8 +20,8 @@
 
 #include <set>
 
-#include <QtWidgets/QComboBox>
-#include <QtWidgets/QHeaderView>
+#include <QComboBox>
+#include <QHeaderView>
 #include <QJsonObject>
 #include <QJsonArray>
 
@@ -791,5 +791,6 @@ void RegBitsTable::on_currval_textChanged(const QString &text)
  *
  * >>> 2025-04-08, Man Hung-Coeng <udc577@126.com>:
  *  01. Remove the trailing newline character from each log message.
+ *  02. Remove module prefix of each Qt header files to improve robustness.
  */
 
