@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 /*
- * Copyright (c) 2024-2025 Man Hung-Coeng <udc577@126.com>
+ * Copyright (c) 2024-2026 Man Hung-Coeng <udc577@126.com>
  * All rights reserved.
  *
  * V0.1.0:
@@ -23,6 +23,9 @@
  * * 01. Fix the error of displaying table title for items
  *       that reference configurations of other registers.
  * * 02. Add Qt 6 compatibility.
+ *
+ * V0.1.4:
+ * * 01. Update Makefile to get the open-source __ver__.mk correctly.
  */
 
 #ifndef __VERSIONS_H__
@@ -46,7 +49,7 @@ extern "C" {
 #endif
 
 #ifndef PATCH_VER
-#define PATCH_VER                       3
+#define PATCH_VER                       4
 #endif
 
 #ifndef PRODUCT_VERSION
@@ -86,5 +89,8 @@ extern "C" {
  *
  * >>> 2025-04-08, Man Hung-Coeng <udc577@126.com>:
  *  01. Version 0.1.3.
+ *
+ * >>> 2026-03-27, Man Hung-Coeng <udc577@126.com>:
+ *  01. Version 0.1.4.
  */
 
