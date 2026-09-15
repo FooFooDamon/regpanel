@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 Man Hung-Coeng <udc577@126.com>
+ * Copyright (c) 2024-2026 Man Hung-Coeng <udc577@126.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -216,7 +216,7 @@ cmd_args_t parse_cmdline(int argc, char **argv)
             }
             else if (0 == strcmp(long_opt, "vcs-version"))
             {
-                printf("%s\n", __VER__);
+                printf("%s\n", __REVISION__);
                 exit(EXIT_SUCCESS);
             }
 #ifdef HAS_LOGGER
@@ -474,5 +474,8 @@ lbl_unload_conf:
  *
  * >>> 2025-04-08, Man Hung-Coeng <udc577@126.com>:
  *  01. Remove module prefix of each Qt header files to improve robustness.
+ *
+ * >>> 2026-09-15, Man Hung-Coeng <udc577@126.com>:
+ *  01. Update macro __VER__ to __REVISION__.
  */
 

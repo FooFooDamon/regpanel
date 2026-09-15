@@ -4,27 +4,30 @@
  * Copyright (c) 2024-2026 Man Hung-Coeng <udc577@126.com>
  * All rights reserved.
  *
- * V0.1.0:
+ * V0.0.0|2024-09-09:
+ * * 01. Initial commit.
+ *
+ * V0.1.0|2024-10-07:
  * * 01. Support generating register graphical tables from configuration file.
  * * 02. Support conversion between graphical tables and text box.
  * * 03. Support associated updates among widgets of each graphical table.
  *
- * V0.1.1:
+ * V0.1.1|2024-10-09:
  * * 01. Add a new description type "missing" to support the case that
  * *     the official doesn't provide any info.
  * * 02. Fix the error of getting default value for items
  *       that reference configurations of other registers.
  *
- * V0.1.2:
+ * V0.1.2|2024-10-15:
  * * 01. Fix the error of synchronizing the "Others" option
  *       of Description pull-down list.
  *
- * V0.1.3:
+ * V0.1.3|2025-04-08:
  * * 01. Fix the error of displaying table title for items
  *       that reference configurations of other registers.
  * * 02. Add Qt 6 compatibility.
  *
- * V0.1.4:
+ * V0.1.4|2026-03-27:
  * * 01. Update Makefile to get the open-source __ver__.mk correctly.
  */
 
@@ -56,12 +59,12 @@ extern "C" {
 #define PRODUCT_VERSION                 __stringify(MAJOR_VER) "." __stringify(MINOR_VER) "." __stringify(PATCH_VER)
 #endif
 
-#ifndef __VER__
-#define __VER__                         "<none>"
+#ifndef __REVISION__
+#define __REVISION__                    "<none>"
 #endif
 
 #ifndef FULL_VERSION
-#define FULL_VERSION()                  (__VER__[0] ? (PRODUCT_VERSION "." __VER__) : (PRODUCT_VERSION))
+#define FULL_VERSION()                  (__REVISION__[0] ? (PRODUCT_VERSION "." __REVISION__) : (PRODUCT_VERSION))
 #endif
 
 #ifdef __cplusplus
@@ -69,28 +72,4 @@ extern "C" {
 #endif
 
 #endif /* #ifndef __VERSIONS_H__ */
-
-/*
- * ================
- *   CHANGE LOG
- * ================
- *
- * >>> 2024-09-09, Man Hung-Coeng <udc577@126.com>:
- *  01. Initial commit.
- *
- * >>> 2024-10-07, Man Hung-Coeng <udc577@126.com>:
- *  01. Version 0.1.0.
- *
- * >>> 2024-10-09, Man Hung-Coeng <udc577@126.com>:
- *  01. Version 0.1.1.
- *
- * >>> 2024-10-15, Man Hung-Coeng <udc577@126.com>:
- *  01. Version 0.1.2.
- *
- * >>> 2025-04-08, Man Hung-Coeng <udc577@126.com>:
- *  01. Version 0.1.3.
- *
- * >>> 2026-03-27, Man Hung-Coeng <udc577@126.com>:
- *  01. Version 0.1.4.
- */
 
