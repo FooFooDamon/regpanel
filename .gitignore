@@ -75,6 +75,7 @@ ui_*.h
 lazy_coding
 lazy_coding_skills
 checkout.*.mk
+__revision__.mk
 __ver__.mk
 c_and_cpp.mk
 
