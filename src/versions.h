@@ -29,6 +29,9 @@
  *
  * V0.1.4|2026-03-27:
  * * 01. Update Makefile to get the open-source __ver__.mk correctly.
+ *
+ * V0.1.5|2026-09-15:
+ * * 01. Update the generation logic of program revision number.
  */
 
 #ifndef __VERSIONS_H__
@@ -52,7 +55,7 @@ extern "C" {
 #endif
 
 #ifndef PATCH_VER
-#define PATCH_VER                       4
+#define PATCH_VER                       5
 #endif
 
 #ifndef PRODUCT_VERSION
